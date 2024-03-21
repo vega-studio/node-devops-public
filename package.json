@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "",
   "main": "./dist/ui/index.js",
+  "bin": {
+    "devops": "./dist/bin/main-entry.sh"
+  },
   "scripts": {
     "update": "./update.ts",
     "clean": "devops clean",
