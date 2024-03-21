@@ -1,0 +1,49 @@
+{
+  "name": "devops-public",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./dist/ui/index.js",
+  "scripts": {
+    "update": "./update.ts",
+    "clean": "devops clean",
+    "component": "devops component",
+    "dev": "devops dev",
+    "init": "devops init",
+    "pr": "devops pr --repoUrl https://github.com/vega-studio/node-devops-public --repoType git --masterBranch main",
+    "release": "devops release",
+    "storybook": "devops storybook",
+    "template": "devops template",
+    "test": "devops test",
+    "ts": "devops ts",
+    "url": "devops url",
+    "env": "devops env",
+    "package": "devops package"
+  },
+  "devDependencies": {
+    "@types/bun": "1.0.10",
+    "@types/fs-extra": "11.0.4",
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#3.0.5",
+    "fs-extra": "11.2.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "types": "./dist/types/ui/index.d.ts",
+  "hosts": {
+    "127.0.0.1": "local.devops-public.com"
+  },
+  "url": {
+    "dev": "https://local.devops-public.com",
+    "figma": "NA",
+    "repo": "https://github.com/vega-studio/node-devops-public"
+  },
+  "skeleton": {
+    "answers": {
+      "repoUrl": "https://github.com/vega-studio/node-devops-public",
+      "repoType": "git",
+      "masterBranch": "main",
+      "figmaUrl": "NA"
+    }
+  }
+}
