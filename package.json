@@ -6,6 +6,10 @@
   "bin": {
     "devops": "./dist/bin/main-entry.sh"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vega-studio/node-devops-public.git"
+  },
   "scripts": {
     "update": "./update.ts",
     "clean": "devops clean",
