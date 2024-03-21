@@ -1,0 +1,2 @@
+export const ${{name: pascal}}: StoryFn = Template().bind({});
+${{name: pascal}}.args = ${{component: pascal}}Props();

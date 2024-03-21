@@ -1,0 +1,21 @@
+@use "./styles/base";
+
+@layer base {
+  @include base.normalize;
+  @include base.global;
+}
+
+.App {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+
+  // App level CSS variables for managing device nuances
+  --safe-padding-top: 0px;
+  --safe-padding-left: 0px;
+  --safe-padding-bottom: 0px;
+  --safe-padding-right: 0px;
+}

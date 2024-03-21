@@ -1,0 +1,5 @@
+@use "colors";
+
+@function white($opacity: 1) {
+  @return rgba(colors.$white, $opacity);
+}

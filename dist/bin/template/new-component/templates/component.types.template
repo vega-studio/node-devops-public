@@ -1,0 +1,18 @@
+/** Rendering modes of this component */
+export const ${{name: pascal}}Mode = {
+
+} as const;
+
+export type ${{name: pascal}}ModeType = typeof ${{name: pascal}}Mode[keyof typeof ${{name: pascal}}Mode];
+
+/**
+ * ${{name: pascal}} props
+ */
+export interface I${{name: pascal}} {
+  /** Provides a custom class name to the container of this component */
+  className?: string;
+  /** Props to apply directly to the container div of this component */
+  containerProps?: React.HTMLProps<HTMLDivElement>;
+  /** Rendering mode of this component */
+  mode?: ${{name: pascal}}ModeType;
+}

@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "allowUnreachableCode": false,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "jsx": "react",
+    "lib": ["es2017", "esnext", "dom"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "noImplicitReturns": false,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "noUnusedParameters": true,
+    "removeComments": false,
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "ES2017",
+    "typeRoots": ["./node_modules/@types", "./dts"],
+    "skipLibCheck": true
+  },
+  "include": ["./*.ts"]
+}
