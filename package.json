@@ -18,7 +18,7 @@
     "init": "devops init",
     "pr": "devops pr --repoUrl https://github.com/vega-studio/node-devops-public --repoType git --masterBranch main",
     "release": "devops release",
-    "storybook": "devops storybook",
+    "storybook": "storybook",
     "template": "devops template",
     "test": "devops test",
     "ts": "devops ts",
