@@ -22,7 +22,6 @@ async function run() {
   ];
 
   // Perform all actions
-
   for (const file of toCopy) {
     fs.copySync(path.resolve(DEVOPS_PATH, file), path.resolve(file));
   }
@@ -34,6 +33,36 @@ async function run() {
   for (const [from, to] of toRename) {
     fs.renameSync(path.resolve(from), path.resolve(to));
   }
+
+  // We now copy ALL of the dependencies, peerDependecnies, and
+  // peerDependenciesMeta to this project's package.json
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.resolve("package.json"), "utf-8")
+  );
+
+  const devopsPackageJson = JSON.parse(
+    fs.readFileSync(path.resolve(DEVOPS_PATH, "package.json"), "utf-8")
+  );
+
+  packageJson.dependencies = {
+    ...packageJson.dependencies,
+    ...devopsPackageJson.dependencies,
+  };
+
+  packageJson.peerDependencies = {
+    ...packageJson.peerDependencies,
+    ...devopsPackageJson.peerDependencies,
+  };
+
+  packageJson.peerDependenciesMeta = {
+    ...packageJson.peerDependenciesMeta,
+    ...devopsPackageJson.peerDependenciesMeta,
+  };
+
+  fs.writeFileSync(
+    path.resolve("package.json"),
+    JSON.stringify(packageJson, null, 2)
+  );
 }
 
 run();

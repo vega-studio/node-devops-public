@@ -16,9 +16,24 @@ This project performs updates with some simple steps:
 - Run `bun run update` to update all files that are public for this project.
 - Commit changes with a semver commit
 
-Now run the release script to release the new project version with release
-notes.
+Now to make the release official:
+
+- Update the package.json version to match the devops version
+- Tag the current commit
 
 ```sh
-bun run release deploy
+git tag -a <version> -m "Release <version"
+```
+
+- Push the tags and force push current state to the release branch
+
+```sh
+git push origin --tags
+git push -f origin dev:release
+```
+
+- Run pr release to make the release PRs into main and dev for final sync
+
+```sh
+bun run pr release
 ```
