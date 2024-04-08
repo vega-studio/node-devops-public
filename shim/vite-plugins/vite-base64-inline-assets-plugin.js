@@ -1,0 +1,2 @@
+// @bun
+import M from"fs";import n from"path";function k(){return{name:"vite-base64-inline-assets-plugin",enforce:"pre",load(o){const c=n.resolve(o);let r;switch(n.extname(c)){case".woff":r="font/woff";break;case".woff2":r="font/woff2";break;case".ttf":r="font/ttf";break;case".png":r="image/png";break;case".jpg":case".jpeg":r="image/jpeg";break;case".gif":r="image/gif";break;case".svg":r="image/svg+xml";break}if(r){const u=M.readFileSync(c).toString("base64");return`export default "data:${r};base64,${u}"`}}}}export{k as viteBase64InlineAssetsPlugin};

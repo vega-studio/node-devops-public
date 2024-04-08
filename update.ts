@@ -28,7 +28,7 @@ async function run() {
   }
 
   for (const file of toRemove) {
-    fs.removeSync(path.resolve(DEVOPS_PATH, file));
+    fs.removeSync(path.resolve(file));
   }
 
   for (const [from, to] of toRename) {

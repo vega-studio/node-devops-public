@@ -3,6 +3,13 @@
   "version": "0.0.1",
   "description": "",
   "main": "./dist/ui/index.js",
+  "bin": {
+    "devops": "./dist/bin/main-entry.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vega-studio/node-devops-public.git"
+  },
   "scripts": {
     "update": "./update.ts",
     "clean": "devops clean",
@@ -22,7 +29,7 @@
   "devDependencies": {
     "@types/bun": "1.0.10",
     "@types/fs-extra": "11.0.4",
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#3.0.5",
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#3.2.0",
     "fs-extra": "11.2.0"
   },
   "keywords": [],

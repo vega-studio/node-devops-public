@@ -1,7 +1,8 @@
-// Example
-// import NotoSansBlack from "../../asset/fonts/NotoSans-Black.ttf?inline";
+// Generated font imports do not mess with the generated tag comments in anyway.
+/* <generated-import> */
+/* </generated-import> */
 
-import { /** addFont, */ destroyAllFonts } from "../../../util/add-font.js";
+import { addFont, destroyAllFonts } from "../../../util/add-font.js";
 
 /**
  * Adds all the fonts to the application. This uses fonts that are bundled into
@@ -11,15 +12,14 @@ import { /** addFont, */ destroyAllFonts } from "../../../util/add-font.js";
  * needed.
  */
 export function buildFonts() {
-  // Example embed importted font.
-  // addFont(
-  //   "geniant__fonts",
-  //   "NotoSans",
-  //   NotoSansBlack,
-  //   "truetype",
-  //   900,
-  //   "normal"
-  // );
+  // Example embed importted font. addFont is from the same module as
+  // destroyAllFonts
+  //
+  // addFont("geniant__fonts", "Inter var", Inter, "woff2", "100 900");
+
+  // Generated font embeddings. Do not mess with the comment tag in anyway.
+  /* <generated-addFont> */
+  /* </generated-addFont> */
 
   return () => {
     destroyAllFonts("geniant__fonts");
