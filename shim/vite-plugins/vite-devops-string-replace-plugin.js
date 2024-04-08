@@ -1,0 +1,2 @@
+// @bun
+import k from"fs";import q from"path";function B(u){return{name:"vite-devops-string-replace-plugin",enforce:"pre",load(w){const g=q.resolve(w),y=[".ts",".js",".tsx",".jsx"];if(k.existsSync(g)&&y.includes(q.extname(g))&&!g.includes("node_modules")&&!g.includes("\0")){let b=k.readFileSync(g,{encoding:"utf-8"});return u.forEach((j)=>{b=b.replace(j.from,j.to)}),b}}}}export{B as viteDevopsStringReplacePlugin};
