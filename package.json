@@ -27,10 +27,7 @@
     "package": "devops package"
   },
   "devDependencies": {
-    "@types/bun": "1.0.10",
-    "@types/fs-extra": "11.0.4",
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#3.2.1",
-    "fs-extra": "11.2.0"
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#3.2.1"
   },
   "keywords": [],
   "author": "",

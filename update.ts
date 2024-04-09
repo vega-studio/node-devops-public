@@ -9,16 +9,15 @@ import { execSync } from "./exec-sync";
  * version of devops for public consumption.
  */
 async function run() {
+  const DEVOPS_PATH = path.resolve("node_modules", "devops");
   // DO a complete sync of the dependencies to ensure we are absolutely up to
   // date
-  fs.removeSync("node_modules");
+  fs.removeSync("node_modules/devops");
   execSync("bun", ["pm", "cache", "rm"]);
   execSync("bun", ["i"]);
 
   // Let the file system flush
   await new Promise((r) => setTimeout(r, 1000));
-
-  const DEVOPS_PATH = path.resolve("node_modules", "devops");
 
   // Ensure the devops package exists
   if (!fs.existsSync(DEVOPS_PATH)) {
