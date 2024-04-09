@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import fs from "fs-extra";
 import path from "path";
+import { execSync } from "./exec-sync";
 
 /**
  * This script will copy the relevant files from the node_modules install of
@@ -8,7 +9,21 @@ import path from "path";
  * version of devops for public consumption.
  */
 async function run() {
+  // DO a complete sync of the dependencies to ensure we are absolutely up to
+  // date
+  fs.removeSync("node_modules");
+  execSync("bun", ["pm", "cache", "rm"]);
+  execSync("bun", ["i"]);
+
+  // Let the file system flush
+  await new Promise((r) => setTimeout(r, 1000));
+
   const DEVOPS_PATH = path.resolve("node_modules", "devops");
+
+  // Ensure the devops package exists
+  if (!fs.existsSync(DEVOPS_PATH)) {
+    throw new Error("Devops package not found");
+  }
 
   // List all files to copy out of the devops project
   const toCopy: string[] = ["dist", "shim", ".storybook"];
