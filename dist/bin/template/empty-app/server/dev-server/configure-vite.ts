@@ -3,7 +3,7 @@ import https from "https";
 import path from "path";
 import { getEnv } from "../config/get-env.js";
 import { Logging } from "../config/logging.js";
-import { useVite } from "devops/shim/express-vite.js";
+import { useVite } from "devops/shim/index.js";
 import { wait } from "../../../util/wait.js";
 
 export async function configureVite(
