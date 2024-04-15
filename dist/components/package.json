@@ -1,1 +1,1 @@
-{"name":"devops","private":true,"main":"../ui/index.js","types":"../types/ui/index.d.ts","dependencies":{},"repository":{},"scripts":{},"devDependencies":{}}
+{"name":"devops","private":true,"type":"module","main":"../ui/index.js","types":"../types/ui/index.d.ts","dependencies":{},"repository":{},"scripts":{},"devDependencies":{}}
