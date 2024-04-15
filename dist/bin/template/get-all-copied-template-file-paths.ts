@@ -48,19 +48,11 @@ export async function getAllCopiedTemplateFilePaths(
   for (const [source, target] of fileMap) {
     // Apply the path params to our paths to generate the real path we need. If
     // any tokens in the path are missed we error and quit.
-    const sourceWithParams = caseTransformTokens(
-      templatePathParams,
-      source,
-      source,
-      true,
-      false
+    const sourceWithParams = (
+      await caseTransformTokens(templatePathParams, source, source, true, false)
     ).template;
-    const targetWithParams = caseTransformTokens(
-      templatePathParams,
-      target,
-      target,
-      true,
-      false
+    const targetWithParams = (
+      await caseTransformTokens(templatePathParams, target, target, true, false)
     ).template;
     // Generate the paths that will take place here
     const sourcePath = path.join(templateDirectoryPath, sourceWithParams);

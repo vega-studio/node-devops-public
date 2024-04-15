@@ -11,6 +11,8 @@ import { promptConfirm } from "../prompt/prompt-confirm.js";
 import { promptDiffFile } from "../prompt/prompt-diff-file.js";
 import { chalk } from "../util/chalk.js";
 import { stringToComment } from "../util/string-to-comment.js";
+import { wait } from "../util/wait.js";
+import { openFile } from "../file-management/open-file.js";
 
 /**
  * Expected type from an index.ts file in a template directory. All of the paths
@@ -31,15 +33,20 @@ export type TemplateSync = {
    */
   defaultTargetPath?: string;
   /**
-   * Inject additional path parameters into the template pathing. These values
-   * will override any parameters passed in from the caller of the sync method.
-   */
-  pathParams?: Record<string, string>;
-  /**
    * Inject additional parameters into the template file contents. These values
    * will override any parameters passed in from the caller of the sync method.
    */
   templateParams?: Record<string, string>;
+  /**
+   * This sets up input prompts for the user when a parameter is encountered that
+   * the system does not provide a value for. The key is the parameter/token
+   * name and the value is the prompt message or a message and default values.
+   */
+  paramPrompts?:
+    | Record<string, string | { message: string; default: string | string[] }>
+    | (() => Promise<
+        Record<string, string | { message: string; default: string | string[] }>
+      >);
   /**
    * This triggers syncing other templates before syncing this template.
    *
@@ -130,14 +137,6 @@ export interface ISyncTemplateToTarget {
    */
   targetDirectory: string;
   /**
-   * These are the options the paths in the template sync object can use in
-   * template format: ${{param: case transform}}.
-   *
-   * ie- we pass in { test: "value" } the file map can now use:
-   * "path/to/file/${{test: kebab}}/file.${{test}}.ts"
-   */
-  templatePathParams: Record<string, string>;
-  /**
    * These are the parameter options we pass into the template content of each
    * file.
    *
@@ -167,6 +166,17 @@ export interface ISyncTemplateToTarget {
    * the base template files.
    */
   includeTemplateIdTag?: boolean;
+  /**
+   * When set, this will automatically open the written files in the editor.
+   */
+  openWrittenFiles?: boolean;
+
+  /**
+   * This provides a means for adjusting a token replacement after all
+   * transforms have taken place to allow for special behaviors like specific
+   * tokens not honoring the requested case type.
+   */
+  onTokenReplace?: (token: string, value: string) => string;
 }
 
 /**
@@ -177,30 +187,17 @@ export interface ISyncTemplateToTarget {
  *
  * The mapping can also include other templates syncs to perform.
  *
- * @param templateDirectory The directory of the template to sync from. ONLY USE
- *                          THE TEMPLATE NAME. This uses getTemplateFile to get
- *                          the path to the template.
- *
- * @param targetDirectory This is the directory of the target project to sync
- *                        to. This is passed into path.resolve.
- *
- * @param templatePathParams This is a list of parameters that can be used in
- *                           the template file paths.
- *
- * @param templateParams This is a list of parameters that can be used in the
- *                       body of the template files.
- *
  * @returns This returns tuples of the files that were written. [target, source]
  */
 export async function syncTemplateToTarget({
   templateId,
   targetDirectory,
-  templatePathParams,
   templateParams,
   suppressVerbosePrompts = false,
   suppressConfirmations = false,
   suppressOverridePrompts = false,
   includeTemplateIdTag = false,
+  openWrittenFiles = false,
 }: ISyncTemplateToTarget) {
   // Look at the directory indicated to be the template directory and see if
   // there is an index file to load.
@@ -252,14 +249,14 @@ export async function syncTemplateToTarget({
     }
   }
 
+  const paramPrompts =
+    typeof templateSync.paramPrompts === "function"
+      ? await templateSync.paramPrompts()
+      : templateSync.paramPrompts;
+
   // Apply the additional path params and template params to the provided path
   // and template param objects. Also, make them new objects so we don't mutate
   // the input.
-  templatePathParams = {
-    ...templatePathParams,
-    ...(templateSync.pathParams || {}),
-  };
-
   templateParams = {
     ...templateParams,
     ...(templateSync.templateParams || {}),
@@ -278,7 +275,6 @@ export async function syncTemplateToTarget({
     const files = await syncTemplateToTarget({
       templateId: template,
       targetDirectory,
-      templatePathParams,
       templateParams,
       suppressVerbosePrompts: true,
       suppressOverridePrompts,
@@ -296,19 +292,25 @@ export async function syncTemplateToTarget({
   for (const [source, target] of fileMap) {
     // Apply the path params to our paths to generate the real path we need. If
     // any tokens in the path are missed we error and quit.
-    const sourceWithParams = caseTransformTokens(
-      templatePathParams,
-      source,
-      source,
-      true,
-      false
+    const sourceWithParams = (
+      await caseTransformTokens(
+        templateParams,
+        source,
+        source,
+        true,
+        false,
+        paramPrompts
+      )
     ).template;
-    const targetWithParams = caseTransformTokens(
-      templatePathParams,
-      target,
-      target,
-      true,
-      false
+    const targetWithParams = (
+      await caseTransformTokens(
+        templateParams,
+        target,
+        target,
+        true,
+        false,
+        paramPrompts
+      )
     ).template;
     // Generate the paths that will take place here
     const sourcePath = path.join(templateDirectoryPath, sourceWithParams);
@@ -331,11 +333,14 @@ export async function syncTemplateToTarget({
 
   for (const [source, target] of finalFileMap) {
     // Read in the source file and perform the template token injection
-    const contents = caseTransformFileTokens(
-      templateParams,
-      source,
-      true,
-      false
+    const contents = (
+      await caseTransformFileTokens(
+        templateParams,
+        source,
+        true,
+        false,
+        paramPrompts
+      )
     ).template;
     // Ensure the directory for the target file exists
     await fs.ensureDir(path.dirname(target));
@@ -374,12 +379,15 @@ export async function syncTemplateToTarget({
   const cleanup = templateSync.cleanup || [];
 
   for (const file of cleanup) {
-    const fileWithParams = caseTransformTokens(
-      templatePathParams,
-      file,
-      file,
-      true,
-      false
+    const fileWithParams = (
+      await caseTransformTokens(
+        templateParams,
+        file,
+        file,
+        true,
+        false,
+        paramPrompts
+      )
     ).template;
     const filePath = path.join(targetDirectory, fileWithParams);
 
@@ -398,6 +406,11 @@ export async function syncTemplateToTarget({
       Template sync complete for ${chalk.cyanBrightBold(templateId)}.
 
     `);
+  }
+
+  if (openWrittenFiles) {
+    await wait(100);
+    await openFile(writtenFiles.map(([targetPath]) => targetPath));
   }
 
   return writtenFiles;

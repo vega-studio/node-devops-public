@@ -4,6 +4,13 @@ import fs from "fs-extra";
 import path from "path";
 import { description } from "../util/description.js";
 import { chalk } from "../util/chalk.js";
+import { promptTextInput } from "../prompt/prompt-text-input.js";
+import { isDefined, isString } from "../util/types.js";
+import { promptSelect } from "../prompt/prompt-select.js";
+
+export type ParamPrompt =
+  | string
+  | { message: string; default: string | string[] };
 
 /**
  * This reads a template string and replaces all found tokens with the options
@@ -23,13 +30,20 @@ import { chalk } from "../util/chalk.js";
  * - snake
  * - kebab
  * - param
+ *
+ * If token prompts are provided, each missing token will be prompted for
+ * instead of triggering a failure.
+ *
+ * NOTE: If tokenPrompts is provided, the resulting answers for tokens WILL be
+ * applied to the options object.
  */
-export function caseTransformTokens(
+export async function caseTransformTokens(
   options: Record<string, string>,
   templateContents: string,
   tokenId?: string,
   failOnMissingTokenInTemplate?: boolean,
-  failOnMissingTokenForOptions?: boolean
+  failOnMissingTokenForOptions?: boolean,
+  tokenPrompts?: Record<string, ParamPrompt>
 ) {
   const onToken = (file: string) => (match: string) => {
     match = match.trim();
@@ -104,6 +118,58 @@ export function caseTransformTokens(
     onToken: onToken(tokenId || "Template"),
   });
 
+  // Let's ensure all tokens are resolved. Missing options will check to see if
+  // they are allowed to be prompted for resolution.
+  console.log({ tokenPrompts });
+  if (tokenPrompts) {
+    // Check if all missing tokens have a prompt available. If any are missing,
+    // we just fail if the fail flag is set.
+    const missingTokens = Array.from(results.unresolvedTemplateOptions.keys());
+    let canPrompt = true;
+
+    // Only if the fail flag is set do we check if all missing are accounted
+    // for.
+    if (failOnMissingTokenInTemplate) {
+      for (const token of missingTokens) {
+        if (!isDefined(tokenPrompts[token])) {
+          canPrompt = false;
+          break;
+        }
+      }
+    }
+
+    // If we are allowed to prompt, we prompt for each token then we re-run this
+    // process.
+    if (canPrompt) {
+      for (const token of missingTokens) {
+        const prompt = tokenPrompts[token];
+        let answer: string = "";
+
+        if (isString(prompt)) {
+          answer = await promptTextInput(prompt);
+        } else if (Array.isArray(prompt.default)) {
+          answer = (await promptSelect(prompt.message, prompt.default)) || "";
+        } else {
+          answer = await promptTextInput(prompt.message, prompt.default);
+        }
+
+        options[token] = answer;
+      }
+
+      // Now re-run the process with the newly set options. We don't include the
+      // prompts as they should have been resolve just now.
+      return caseTransformTokens(
+        options,
+        templateContents,
+        tokenId,
+        failOnMissingTokenInTemplate,
+        failOnMissingTokenForOptions
+      );
+    }
+  }
+
+  // Check if we are supposed to fail when a token is in the template, but no
+  // answer was given for it.
   if (failOnMissingTokenInTemplate) {
     if (results.unresolvedTemplateOptions.size > 0) {
       throw new Error(description`
@@ -152,19 +218,21 @@ export function caseTransformTokens(
  * - kebab
  * - param
  */
-export function caseTransformFileTokens(
+export async function caseTransformFileTokens(
   options: Record<string, string>,
   filePath: string,
   failOnMissingTokenInTemplate?: boolean,
-  failOnMissingTokenForOptions?: boolean
+  failOnMissingTokenForOptions?: boolean,
+  tokenPrompts?: Record<string, ParamPrompt>
 ) {
   const templateFileName = path.basename(filePath);
 
-  return caseTransformTokens(
+  return await caseTransformTokens(
     options,
     fs.readFileSync(filePath, { encoding: "utf-8" }),
     templateFileName,
     failOnMissingTokenInTemplate,
-    failOnMissingTokenForOptions
+    failOnMissingTokenForOptions,
+    tokenPrompts
   );
 }
