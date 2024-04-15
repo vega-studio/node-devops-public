@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+// @bun
+import g from"path";import{execFileSync as j} from"child_process";import{fileURLToPath as q,URL as v} from"url";async function w(){try{let u,b;switch(process.platform){case"aix":case"darwin":case"freebsd":case"linux":case"openbsd":case"sunos":u="main-entry.sh",b=g.resolve(k,u),j(b,process.argv.slice(2),{stdio:["inherit","inherit","inherit"],env:process.env});return;case"win32":u="main-entry.ps1",b=g.resolve(k,u),j("powershell.exe",["-NoProfile","-ExecutionPolicy","Bypass","-File",b].concat(process.argv.slice(2)),{stdio:["inherit","inherit","inherit"],env:process.env});return;default:console.error(`Unknown platform: ${process.platform}`)}}catch(u){}}var k=q(new v(".",import.meta.url));w();

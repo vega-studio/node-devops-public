@@ -1,0 +1,41 @@
+import React from "react";
+import { classnames } from "../../../../util/classnames.js";
+import { cva, VariantProps } from "../../../../util/cva.js";
+import { observer } from "mobx-react";
+import "./${{page: kebab}}.scss";
+
+/**
+ * Rendering variants of this page
+ */
+export const ${{page: pascal}}PageCva = cva("${{page: pascal}}Page", {
+  variants: {
+    mode: {},
+  },
+  defaultVariants: { mode: undefined },
+});
+
+/**
+ * Props available to this page
+ */
+export interface I${{page: pascal}}Page extends VariantProps<typeof ${{page: pascal}}PageCva.variants> {
+  /** Provides a custom class name to the container of this page */
+  className?: string;
+  /** Props to apply directly to the container div of this page */
+  containerProps?: React.HTMLProps<HTMLDivElement>;
+}
+
+/**
+ * TODO: Write the page description for documentation here
+ */
+export const ${{page: pascal}}Page = observer(
+  React.forwardRef<HTMLDivElement, I${{page: pascal}}Page>((props: I${{page: pascal}}Page, _ref) => {
+    const { className, containerProps, mode } = props;
+
+    return (
+      <${{layout: pascal}}
+        className={classnames(${{page: pascal}}PageCva.variants({ mode }), className)}
+        {...containerProps}
+      ></${{layout: pascal}}>
+    );
+  })
+);

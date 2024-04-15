@@ -7,19 +7,19 @@ export default async () =>
     fileMap: [
       [
         "./templates/component.template",
-        "./ui/components/${{category}}/${{component}}/${{component}}.tsx",
+        "./ui/components/${{category: kebab}}/${{component: kebab}}/${{component: kebab}}.tsx",
       ],
       [
         "./templates/scss.template",
-        "./ui/components/${{category}}/${{component}}/${{component}}.scss",
+        "./ui/components/${{category: kebab}}/${{component: kebab}}/${{component: kebab}}.scss",
       ],
       [
         "./templates/story.template",
-        "./ui/stories/components/${{category}}/${{component}}.stories.tsx",
+        "./ui/stories/components/${{category: kebab}}/${{component: kebab}}.stories.tsx",
       ],
       [
         "./templates/props.template",
-        "./ui/stories/data/${{category}}/${{component}}-props.tsx",
+        "./ui/stories/data/${{category: kebab}}/${{component: kebab}}-props.tsx",
       ],
     ],
   }) as TemplateSync;

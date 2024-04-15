@@ -50,12 +50,8 @@ export async function getAllBaseTemplateFilePaths(
   for (const [source] of fileMap) {
     // Apply the path params to our paths to generate the real path we need. If
     // any tokens in the path are missed we error and quit.
-    const sourceWithParams = caseTransformTokens(
-      templatePathParams,
-      source,
-      source,
-      true,
-      false
+    const sourceWithParams = (
+      await caseTransformTokens(templatePathParams, source, source, true, false)
     ).template;
     // Generate the paths that will take place here
     const sourcePath = path.join(templateDirectoryPath, sourceWithParams);
