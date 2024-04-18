@@ -7,22 +7,28 @@ const NODE_MODULES_STORIES = (process.env.NODE_MODULES_STORIES || "")
 
 const CONFIG = {
   stories: [
-    path.resolve(process.env.PROJECT_ROOT || "", "./ui/**/*.mdx"),
-    path.resolve(
-      process.env.PROJECT_ROOT || "",
-      "./ui/**/*.stories.@(js|jsx|ts|tsx)"
-    ),
-    path.resolve(
-      process.env.PROJECT_ROOT || "",
-      "./ui/**/*.bugs.@(js|jsx|ts|tsx)"
-    ),
+    {
+      directory: path.resolve(process.env.PROJECT_ROOT || "", "./ui"),
+      files: "**/*.mdx",
+    },
+    {
+      directory: path.resolve(process.env.PROJECT_ROOT || "", "./ui"),
+      files: "**/*.stories.@(js|jsx|ts|tsx)",
+    },
+    {
+      directory: path.resolve(process.env.PROJECT_ROOT || "", "./ui"),
+      files: "**/*.bugs.@(js|jsx|ts|tsx)",
+    },
     ...NODE_MODULES_STORIES.map((moduleName) => {
       const moduleStories = path.resolve(
         process.env.PROJECT_ROOT || "",
         `./node_modules/${moduleName}/dist/stories`
       );
       if (fs.existsSync(moduleStories)) {
-        return path.resolve(moduleStories, `**/*.stories.@(js|jsx|ts|tsx)`);
+        return {
+          directory: path.resolve(moduleStories),
+          files: "**/*.stories.@(js|jsx|ts|tsx)",
+        };
       } else {
         console.warn(
           `The stories for installed dependency ${moduleName} were not found.`
@@ -65,4 +71,5 @@ const CONFIG = {
   },
 };
 console.warn("STORIES FROM", CONFIG.stories);
+console.warn("\\\\".replace("\\\\", "\\"));
 module.exports = CONFIG;

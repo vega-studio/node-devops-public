@@ -1,8 +1,9 @@
 import { getAllFiles } from "../file-management/get-all-files.js";
+import { buildTemplateSyncContext } from "./build-template-sync-context.js";
 import { caseTransformTokens } from "./case-transform-tokens.js";
 import { getTemplateFile } from "./get-template-file.js";
-import { getTemplateSyncObject } from "./sync-template-to-target.js";
 import path from "path";
+import { getTemplateSyncObject } from "./get-template-sync-object.js";
 
 /**
  * Gets ALL files relevant to a template that exists in the target project.
@@ -19,8 +20,9 @@ export async function getAllBaseTemplateFilePaths(
   excludeIncludedTemplates = false,
   out: string[] = []
 ) {
+  const ctx = await buildTemplateSyncContext();
   // Retrieve the sync object (all errors handled in the method called)
-  const templateSync = await getTemplateSyncObject(templatePath);
+  const templateSync = await getTemplateSyncObject(templatePath, ctx);
   // This will contain all of the results of this operation.
   const result: string[] = out;
 

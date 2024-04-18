@@ -5,12 +5,17 @@ import path from "path";
 import { description } from "../util/description.js";
 import { chalk } from "../util/chalk.js";
 import { promptTextInput } from "../prompt/prompt-text-input.js";
-import { isDefined, isString } from "../util/types.js";
+import { isString } from "../util/types.js";
 import { promptSelect } from "../prompt/prompt-select.js";
 
 export type ParamPrompt =
+  | undefined
   | string
-  | { message: string; default: string | string[] };
+  | {
+      message: string;
+      default: string | string[];
+      onValue?: (value: string) => Promise<string>;
+    };
 
 /**
  * This reads a template string and replaces all found tokens with the options
@@ -38,33 +43,39 @@ export type ParamPrompt =
  * applied to the options object.
  */
 export async function caseTransformTokens(
-  options: Record<string, string>,
+  options: Record<string, string | undefined>,
   templateContents: string,
   tokenId?: string,
   failOnMissingTokenInTemplate?: boolean,
   failOnMissingTokenForOptions?: boolean,
-  tokenPrompts?: Record<string, ParamPrompt>
+  tokenPrompts?: Record<string, ParamPrompt>,
+  transformToken?: (
+    token: string[],
+    value: string,
+    suggested: string,
+    options: Record<string, string | undefined>
+  ) => string
 ) {
   const onToken = (file: string) => (match: string) => {
     match = match.trim();
     const checks = match.split(":").map((s) => s.trim());
     let result: string = options[checks[0]] || checks[0];
 
-    if (!options[checks[0]]) {
-      console.warn(
-        "No available option for token specified for template file:",
-        {
-          file,
-          match,
-        }
-      );
-
+    if (options[checks[0]] === void 0) {
+      if (transformToken) {
+        return transformToken(checks, match, match, options);
+      }
       return match;
     }
 
     if (!checks[1]) {
+      if (transformToken) {
+        return transformToken(checks, result, match, options);
+      }
       return result;
     }
+
+    const preTransform = result;
 
     // Look for a transform to the case
     switch (checks[1]) {
@@ -107,8 +118,67 @@ export async function caseTransformTokens(
         break;
     }
 
+    if (transformToken) {
+      return transformToken(checks, preTransform, result, options);
+    }
     return result;
   };
+
+  // Run the template to discover all tokens in the template
+  const checkTokens = template({
+    template: templateContents,
+    options: {},
+    doubleCurlyBrackets: true,
+  });
+
+  // Get all of the tokens and make sure every token is resolved that can be
+  // resolved before performing the actual templating routine
+  let unresolvedTokens = new Set(
+    Array.from(checkTokens.unresolvedTemplateOptions.keys())
+      .map((t) => t.split(":")[0].trim())
+      .filter((t) => !(t in options))
+  );
+
+  if (tokenPrompts) {
+    const needsPrompt = Object.keys(tokenPrompts).filter((t) =>
+      unresolvedTokens.has(t)
+    );
+
+    if (needsPrompt.length > 0) {
+      for (const token of needsPrompt) {
+        unresolvedTokens.delete(token);
+        const prompt = tokenPrompts[token];
+        let answer: string = "";
+
+        if (isString(prompt)) {
+          answer = await promptTextInput(prompt);
+        } else if (prompt) {
+          if (Array.isArray(prompt.default)) {
+            answer = (await promptSelect(prompt.message, prompt.default)) || "";
+          } else {
+            answer = await promptTextInput(prompt.message, prompt.default);
+          }
+
+          // Hand off the answer provided to the option that created it for an
+          // additional transformation as needed.
+          answer = prompt.onValue ? await prompt.onValue(answer) : answer;
+        }
+
+        options[token] = answer;
+      }
+    }
+  }
+
+  if (unresolvedTokens.size > 0 && failOnMissingTokenForOptions) {
+    throw new Error(description`
+        Some tokens provided by the template were not resolved by the options
+        provided. These need to be resolved to continue:
+        Template ID: ${chalk.yellowBrightBold(tokenId || "None")}
+        Tokens: ${chalk.redBrightBold(
+          Array.from(unresolvedTokens.values()).join(", ")
+        )}
+      `);
+  }
 
   // Generate all of the contents of our files by replacing the relevant terms
   const results = template({
@@ -117,56 +187,6 @@ export async function caseTransformTokens(
     doubleCurlyBrackets: true,
     onToken: onToken(tokenId || "Template"),
   });
-
-  // Let's ensure all tokens are resolved. Missing options will check to see if
-  // they are allowed to be prompted for resolution.
-  console.log({ tokenPrompts });
-  if (tokenPrompts) {
-    // Check if all missing tokens have a prompt available. If any are missing,
-    // we just fail if the fail flag is set.
-    const missingTokens = Array.from(results.unresolvedTemplateOptions.keys());
-    let canPrompt = true;
-
-    // Only if the fail flag is set do we check if all missing are accounted
-    // for.
-    if (failOnMissingTokenInTemplate) {
-      for (const token of missingTokens) {
-        if (!isDefined(tokenPrompts[token])) {
-          canPrompt = false;
-          break;
-        }
-      }
-    }
-
-    // If we are allowed to prompt, we prompt for each token then we re-run this
-    // process.
-    if (canPrompt) {
-      for (const token of missingTokens) {
-        const prompt = tokenPrompts[token];
-        let answer: string = "";
-
-        if (isString(prompt)) {
-          answer = await promptTextInput(prompt);
-        } else if (Array.isArray(prompt.default)) {
-          answer = (await promptSelect(prompt.message, prompt.default)) || "";
-        } else {
-          answer = await promptTextInput(prompt.message, prompt.default);
-        }
-
-        options[token] = answer;
-      }
-
-      // Now re-run the process with the newly set options. We don't include the
-      // prompts as they should have been resolve just now.
-      return caseTransformTokens(
-        options,
-        templateContents,
-        tokenId,
-        failOnMissingTokenInTemplate,
-        failOnMissingTokenForOptions
-      );
-    }
-  }
 
   // Check if we are supposed to fail when a token is in the template, but no
   // answer was given for it.
@@ -219,11 +239,17 @@ export async function caseTransformTokens(
  * - param
  */
 export async function caseTransformFileTokens(
-  options: Record<string, string>,
+  options: Record<string, string | undefined>,
   filePath: string,
   failOnMissingTokenInTemplate?: boolean,
   failOnMissingTokenForOptions?: boolean,
-  tokenPrompts?: Record<string, ParamPrompt>
+  tokenPrompts?: Record<string, ParamPrompt>,
+  transformToken?: (
+    token: string[],
+    value: string,
+    suggested: string,
+    options: Record<string, string | undefined>
+  ) => string
 ) {
   const templateFileName = path.basename(filePath);
 
@@ -233,6 +259,7 @@ export async function caseTransformFileTokens(
     templateFileName,
     failOnMissingTokenInTemplate,
     failOnMissingTokenForOptions,
-    tokenPrompts
+    tokenPrompts,
+    transformToken
   );
 }

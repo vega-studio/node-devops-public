@@ -13,114 +13,9 @@ import { chalk } from "../util/chalk.js";
 import { stringToComment } from "../util/string-to-comment.js";
 import { wait } from "../util/wait.js";
 import { openFile } from "../file-management/open-file.js";
-
-/**
- * Expected type from an index.ts file in a template directory. All of the paths
- * specified in this can target input parameters in their file paths.
- *
- * You would use them like this:
- * "path/to/file/${{parameter name}}/file.${{another parameter name}}.ts"
- *
- * Specifying the parameters makes them REQUIRED when the template is used.
- * Parameters that are not fulfilled will trigger an error. This ensures the
- * caller fulfills all of the parameters AND the template will satisfy all of
- * caller's parameters making it a two way contract that helps prevent bugs.
- */
-export type TemplateSync = {
-  /**
-   * The template can suggest a target path for the installation. If one is
-   * provided by the caller of the sync, this will be ignored.
-   */
-  defaultTargetPath?: string;
-  /**
-   * Inject additional parameters into the template file contents. These values
-   * will override any parameters passed in from the caller of the sync method.
-   */
-  templateParams?: Record<string, string>;
-  /**
-   * This sets up input prompts for the user when a parameter is encountered that
-   * the system does not provide a value for. The key is the parameter/token
-   * name and the value is the prompt message or a message and default values.
-   */
-  paramPrompts?:
-    | Record<string, string | { message: string; default: string | string[] }>
-    | (() => Promise<
-        Record<string, string | { message: string; default: string | string[] }>
-      >);
-  /**
-   * This triggers syncing other templates before syncing this template.
-   *
-   * Use absolute paths here (use getTemplateFile)
-   */
-  includeTemplates?: string[];
-  /**
-   * This is a list of where the files for this template should go. It is a list
-   * of tuples where:
-   *
-   * [path relative to template directory, path relative to target directory]
-   */
-  fileMap?: [string, string][];
-  /**
-   * This specifies files to delete. This will be relative to the target
-   * directory.
-   */
-  cleanup?: string[];
-};
-
-export type AsyncTemplateSync = () => Promise<TemplateSync>;
-
-/**
- * Typeguard for the TemplateSync type.
- */
-export function isTemplateSync(obj: any): obj is TemplateSync {
-  return (
-    obj &&
-    (Array.isArray(obj.includeTemplates) ||
-      Array.isArray(obj.fileMap) ||
-      Array.isArray(obj.cleanup))
-  );
-}
-
-/**
- * Retrieves the template sync object from a template folder structure.
- *
- * This throws errors if invalid paths are used or of the template specified is
- * not configured correctly.
- */
-export async function getTemplateSyncObject(templateDirectory: string) {
-  // Look at the directory indicated to be the template directory and see if
-  // there is an index file to load.
-  const templateIndexPath = getTemplateFile(templateDirectory, "index.ts");
-
-  if (!templateIndexPath) {
-    console.error(description`
-      Specified template is not a valid template folder: ${templateIndexPath}
-      There must be an index.ts file that exports a default TemplateSync object.
-    `);
-    throw new Error("Invalid template directory.");
-  }
-
-  let templateSync: TemplateSync = {};
-  const templateIndex = await import(templateIndexPath);
-  let check = templateIndex.default;
-
-  // See if an async config object is provided.
-  if (check instanceof Function) {
-    check = await check();
-  }
-
-  if (isTemplateSync(check)) {
-    templateSync = check;
-  } else {
-    console.error(description`
-      Specified template is not a valid template folder: ${templateIndexPath}
-      The index.ts file must export a default TemplateSync object.
-    `);
-    throw new Error("Invalid template directory.");
-  }
-
-  return templateSync;
-}
+import { buildTemplateSyncContext } from "./build-template-sync-context.js";
+import { type TemplateSync } from "./types.js";
+import { getTemplateSyncObject } from "./get-template-sync-object.js";
 
 /**
  * Options for the syncTemplateToTarget helper method.
@@ -143,7 +38,7 @@ export interface ISyncTemplateToTarget {
    * ie- we pass in { test: "value" } the file itself can now use:
    * class ${{test: pascal}} { ... }
    */
-  templateParams: Record<string, string>;
+  templateParams: Record<string, string | undefined>;
   /**
    * When true, the method won't ask for certain confirmations and will run with
    * less user checks.
@@ -176,7 +71,12 @@ export interface ISyncTemplateToTarget {
    * transforms have taken place to allow for special behaviors like specific
    * tokens not honoring the requested case type.
    */
-  onTokenReplace?: (token: string, value: string) => string;
+  transformToken?: (
+    token: string[],
+    value: string,
+    suggested: string,
+    options: Record<string, string | undefined>
+  ) => string;
 }
 
 /**
@@ -198,6 +98,7 @@ export async function syncTemplateToTarget({
   suppressOverridePrompts = false,
   includeTemplateIdTag = false,
   openWrittenFiles = false,
+  transformToken,
 }: ISyncTemplateToTarget) {
   // Look at the directory indicated to be the template directory and see if
   // there is an index file to load.
@@ -212,9 +113,13 @@ export async function syncTemplateToTarget({
     process.exit(1);
   }
 
+  // Generate our template sync context to pass to our template sync functions
+  // from the template file.
+  const ctx = await buildTemplateSyncContext();
+
   // If there is an index file, load it and see if it exports a TemplateSync
   // object.
-  let templateSync: TemplateSync = await getTemplateSyncObject(templateId);
+  let templateSync: TemplateSync = await getTemplateSyncObject(templateId, ctx);
 
   if (!suppressVerbosePrompts) {
     console.warn(description`
@@ -262,6 +167,8 @@ export async function syncTemplateToTarget({
     ...(templateSync.templateParams || {}),
   };
 
+  // Let's
+
   // Now that we have a valid template sync object, we can begin the sync.
   // We start by first seeing if there are any other templates to sync before
   // this one.
@@ -299,7 +206,8 @@ export async function syncTemplateToTarget({
         source,
         true,
         false,
-        paramPrompts
+        paramPrompts,
+        templateSync.transformToken || transformToken
       )
     ).template;
     const targetWithParams = (
@@ -309,7 +217,8 @@ export async function syncTemplateToTarget({
         target,
         true,
         false,
-        paramPrompts
+        paramPrompts,
+        templateSync.transformToken || transformToken
       )
     ).template;
     // Generate the paths that will take place here
@@ -339,7 +248,8 @@ export async function syncTemplateToTarget({
         source,
         true,
         false,
-        paramPrompts
+        paramPrompts,
+        templateSync.transformToken || transformToken
       )
     ).template;
     // Ensure the directory for the target file exists
@@ -386,7 +296,8 @@ export async function syncTemplateToTarget({
         file,
         true,
         false,
-        paramPrompts
+        paramPrompts,
+        templateSync.transformToken || transformToken
       )
     ).template;
     const filePath = path.join(targetDirectory, fileWithParams);
@@ -413,5 +324,6 @@ export async function syncTemplateToTarget({
     await openFile(writtenFiles.map(([targetPath]) => targetPath));
   }
 
+  templateSync.syncComplete?.(writtenFiles, ctx, templateParams);
   return writtenFiles;
 }
