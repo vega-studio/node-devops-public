@@ -1,7 +1,7 @@
-import { I${{name: pascal}} } from "../../../components/index.js";
+import { I${{component: pascal}} } from "../../../components/index.js";
 import { makeObservable, observable } from "mobx";
 
-class Store implements I${{name: pascal}} {
+class Store implements I${{component: pascal}} {
   @observable className?: string = void 0;
 
   constructor() {
@@ -9,4 +9,4 @@ class Store implements I${{name: pascal}} {
   }
 }
 
-export const ${{name: pascal}}Props = () => new Store();
+export const ${{component: pascal}}Props = () => new Store();

@@ -1,18 +1,18 @@
 /** Rendering modes of this component */
-export const ${{name: pascal}}Mode = {
+export const ${{component: pascal}}Mode = {
 
 } as const;
 
-export type ${{name: pascal}}ModeType = typeof ${{name: pascal}}Mode[keyof typeof ${{name: pascal}}Mode];
+export type ${{component: pascal}}ModeType = typeof ${{component: pascal}}Mode[keyof typeof ${{component: pascal}}Mode];
 
 /**
- * ${{name: pascal}} props
+ * ${{component: pascal}} props
  */
-export interface I${{name: pascal}} {
+export interface I${{component: pascal}} {
   /** Provides a custom class name to the container of this component */
   className?: string;
   /** Props to apply directly to the container div of this component */
   containerProps?: React.HTMLProps<HTMLDivElement>;
   /** Rendering mode of this component */
-  mode?: ${{name: pascal}}ModeType;
+  mode?: ${{component: pascal}}ModeType;
 }

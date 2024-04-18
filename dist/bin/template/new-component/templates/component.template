@@ -2,12 +2,12 @@ import React from "react";
 import { classnames } from "../../../../util/classnames.js";
 import { cva, VariantProps } from "../../../../util/cva.js";
 import { observer } from "mobx-react";
-import "./${{name: kebab}}.scss";
+import "./${{component: kebab}}.scss";
 
 /**
  * Rendering variants of this component
  */
-export const ${{name: pascal}}Cva = cva("${{name: pascal}}", {
+export const ${{component: pascal}}Cva = cva("${{component: pascal}}", {
   variants: {
     mode: {},
   },
@@ -17,7 +17,7 @@ export const ${{name: pascal}}Cva = cva("${{name: pascal}}", {
 /**
  * Props available to this component
  */
-export interface I${{name: pascal}} extends VariantProps<typeof ${{name: pascal}}Cva.variants> {
+export interface I${{component: pascal}} extends VariantProps<typeof ${{component: pascal}}Cva.variants> {
   /** Provides a custom class name to the container of this component */
   className?: string;
   /** Props to apply directly to the container div of this component */
@@ -27,13 +27,13 @@ export interface I${{name: pascal}} extends VariantProps<typeof ${{name: pascal}
 /**
  * TODO: Write the component description for documentation here
  */
-export const ${{name: pascal}} = observer(
-  React.forwardRef<HTMLDivElement, I${{name: pascal}}>((props: I${{name: pascal}}, _ref) => {
+export const ${{component: pascal}} = observer(
+  React.forwardRef<HTMLDivElement, I${{component: pascal}}>((props: I${{component: pascal}}, _ref) => {
     const { className, containerProps, mode } = props;
 
     return (
       <div
-        className={classnames(${{name: pascal}}Cva.variants({ mode }), className)}
+        className={classnames(${{component: pascal}}Cva.variants({ mode }), className)}
         {...containerProps}
       ></div>
     );
