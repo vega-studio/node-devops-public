@@ -1,4 +1,4 @@
-import { TemplateSync } from "../sync-template-to-target.js";
+import { TemplateSync } from "../types.js";
 import path from "path";
 
 export default async () =>

@@ -174,6 +174,11 @@ export async function caseTransformTokens(
         Some tokens provided by the template were not resolved by the options
         provided. These need to be resolved to continue:
         Template ID: ${chalk.yellowBrightBold(tokenId || "None")}
+        Provided: ${chalk.redBrightBold(
+          Array.from(Object.entries(options))
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(", ")
+        )}
         Tokens: ${chalk.redBrightBold(
           Array.from(unresolvedTokens.values()).join(", ")
         )}
@@ -191,13 +196,18 @@ export async function caseTransformTokens(
   // Check if we are supposed to fail when a token is in the template, but no
   // answer was given for it.
   if (failOnMissingTokenInTemplate) {
-    if (results.unresolvedTemplateOptions.size > 0) {
+    if (unresolvedTokens.size > 0) {
       throw new Error(description`
         Some tokens provided by the template were not resolved by the options
         provided. These need to be resolved to continue:
         Template ID: ${chalk.yellowBrightBold(tokenId || "None")}
+        Provided: ${chalk.redBrightBold(
+          Array.from(Object.entries(options))
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(", ")
+        )}
         Tokens: ${chalk.redBrightBold(
-          Array.from(results.unresolvedTemplateOptions.keys()).join(", ")
+          Array.from(unresolvedTokens.keys()).join(", ")
         )}
       `);
     }
@@ -209,6 +219,11 @@ export async function caseTransformTokens(
         Some tokens provided by the options were not resolved by the template.
         These need to be resolved to continue:
         Template ID: ${chalk.yellowBrightBold(tokenId || "None")}
+        Provided: ${chalk.redBrightBold(
+          Array.from(Object.entries(options))
+            .map(([key, val]) => `${key}: ${val}`)
+            .join(", ")
+        )}
         Tokens: ${chalk.redBrightBold(
           Array.from(results.unresolvedProvidedOptions.keys()).join(", ")
         )}

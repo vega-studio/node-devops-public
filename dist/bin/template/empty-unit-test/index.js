@@ -1,2 +1,2 @@
 // @bun
-import i from"path";var S=async()=>({defaultTargetPath:i.resolve("./"),fileMap:[["./example.test.ts","./unit-test/example.test.ts"]]});export{S as default};
+import c from"path";var l=async()=>({defaultTargetPath:c.resolve("./"),fileMap:[["./example.test.ts","./unit-test/example.test.ts"]]});export{l as default};
