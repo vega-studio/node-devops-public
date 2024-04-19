@@ -4,7 +4,7 @@
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
-    "devops": "./dist/bin/main-entry.js"
+    "devops": "./dist/bin/main-entry.cjs"
   },
   "repository": {
     "type": "git",
