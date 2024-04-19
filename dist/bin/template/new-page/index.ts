@@ -2,7 +2,6 @@ import { TemplateSync, type TemplateSyncContext } from "../types.js";
 import path from "path";
 import * as changecase from "change-case";
 import fs from "fs-extra";
-import { description } from "../../util/description.js";
 
 async function getLayouts(ctx: TemplateSyncContext, fullPath?: boolean) {
   const layoutSuggestions: string[] = [];
@@ -88,7 +87,7 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
                       "No components detected in layout:",
                       layoutSrcPath
                     );
-                    console.error(description`
+                    console.error(ctx.lib.util.description`
                       The layout needs to use groupReactChildren and have calls like group.get(Component)
                       for this tool to pick up those in use.
                     `);
