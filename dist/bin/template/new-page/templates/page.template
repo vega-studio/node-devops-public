@@ -4,6 +4,7 @@ import { cva, VariantProps } from "../../../../util/cva.js";
 import { observer } from "mobx-react";
 import "./${{page: kebab}}.scss";
 ${{layoutImport}}
+${{componentImport}}
 
 /**
  * Rendering variants of this page
@@ -36,7 +37,9 @@ export const ${{page: pascal}}Page = observer(
       <${{layout: pascal}}
         className={classnames(${{page: pascal}}PageCva.variants({ mode }), className)}
         {...containerProps}
-      ></${{layout: pascal}}>
+      >
+        ${{component}}
+      </${{layout: pascal}}>
     );
   })
 );
