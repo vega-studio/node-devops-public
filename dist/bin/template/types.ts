@@ -34,6 +34,7 @@ import type { promptDiffFile } from "../prompt/prompt-diff-file.js";
 import type { chalk } from "../util/chalk.js";
 import type { description } from "../util/description.js";
 import type { openFile } from "../file-management/open-file.js";
+import type { promptSuggestions } from "../prompt/prompt-suggestions.js";
 
 /**
  * Expected type from an index.ts file in a template directory. All of the paths
@@ -153,6 +154,7 @@ export type TemplateSyncContext = {
       promptOverrideFile: typeof promptOverrideFile;
       promptSelect: typeof promptSelect;
       promptTextInput: typeof promptTextInput;
+      promptSuggestions: typeof promptSuggestions;
     };
     targetProject: {
       targetProjectPackage: typeof targetProjectPackage;

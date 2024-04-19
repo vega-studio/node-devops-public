@@ -5,7 +5,7 @@ import path from "path";
 import { description } from "../util/description.js";
 import { chalk } from "../util/chalk.js";
 import { promptTextInput } from "../prompt/prompt-text-input.js";
-import { isString } from "../util/types.js";
+import { isDefined, isString } from "../util/types.js";
 import { promptSelect } from "../prompt/prompt-select.js";
 
 export type ParamPrompt =
@@ -136,7 +136,7 @@ export async function caseTransformTokens(
   let unresolvedTokens = new Set(
     Array.from(checkTokens.unresolvedTemplateOptions.keys())
       .map((t) => t.split(":")[0].trim())
-      .filter((t) => !(t in options))
+      .filter((t) => !isDefined(options[t]))
   );
 
   if (tokenPrompts) {

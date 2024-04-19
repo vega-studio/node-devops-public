@@ -10,6 +10,7 @@ import * as changecase from "change-case";
 import { generateCategory } from "../component/generate-category.js";
 import { promptTextInput } from "../prompt/prompt-text-input.js";
 import { promptSelect } from "../prompt/prompt-select.js";
+import { promptSuggestions } from "../prompt/prompt-suggestions.js";
 import { promptOverrideFile } from "../prompt/prompt-override-file.js";
 import { targetProjectDependencies } from "../target-project/target-project-dependencies.js";
 import { targetProjectName } from "../target-project/target-project-name.js";
@@ -64,6 +65,7 @@ export async function buildTemplateSyncContext(): Promise<TemplateSyncContext> {
         promptOverrideFile,
         promptSelect,
         promptTextInput,
+        promptSuggestions,
       },
       targetProject: {
         targetProjectPackage,
