@@ -3,28 +3,28 @@ import path from "path";
 import * as changecase from "change-case";
 import fs from "fs-extra";
 
-async function getLayouts(ctx: TemplateSyncContext, fullPath?: boolean) {
-  const layoutSuggestions: string[] = [];
-
-  ctx.components.forEach((component) => {
-    if (component.includes("-layout.tsx")) {
-      if (fullPath) {
-        layoutSuggestions.push(component);
-      } else {
-        layoutSuggestions.push(
-          path.basename(component, path.extname(component) || "")
-        );
-      }
-    }
-  });
-
-  layoutSuggestions.push("None...");
-
-  return layoutSuggestions;
-}
-
 export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
   let layoutComponents: string[] = [];
+
+  async function getLayouts(fullPath?: boolean) {
+    const layoutSuggestions: string[] = [];
+
+    ctx.components.forEach((component) => {
+      if (component.includes("-layout.tsx")) {
+        if (fullPath) {
+          layoutSuggestions.push(component);
+        } else {
+          layoutSuggestions.push(
+            path.basename(component, path.extname(component) || "")
+          );
+        }
+      }
+    });
+
+    layoutSuggestions.push("None...");
+
+    return layoutSuggestions;
+  }
 
   return {
     defaultTargetPath: path.resolve("./"),
@@ -49,10 +49,44 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
 
     paramPrompts: async () => {
       return {
-        page: "Enter a name for the page (Exclude the word 'page' in the name):",
+        page: {
+          message:
+            "Enter a name for the page (Exclude the word 'page' in the name, leave blank to select from a layout name):",
+          default: "",
+          onValue: async (value) => {
+            value = value?.trim();
+
+            if (!value) {
+              // Only suggest layouts that don't have a used page name already
+              const layouts = (await getLayouts())
+                .map((layout) => layout.split("-layout")[0])
+                .filter((layout) => {
+                  return !fs.existsSync(
+                    path.resolve(`./app/client/pages/${layout}`)
+                  );
+                });
+
+              while (!value) {
+                value =
+                  (await ctx.lib.prompt.promptSuggestions(
+                    "Select a page name based on available layouts:",
+                    layouts
+                  )) || "";
+              }
+            }
+
+            while (value.toLowerCase().includes("page")) {
+              value = await ctx.lib.prompt.promptTextInput(
+                "Error: The name you entered contains the word 'page'.\nPlease enter a name that excludes the word 'page' as the page will be a .page.tsx file:"
+              );
+            }
+
+            return value;
+          },
+        },
         layout: {
           message: "Start typing to select the layout to utilize for the page:",
-          default: await getLayouts(ctx),
+          default: await getLayouts(),
 
           // When the user selects the layout to use, we will read the layout file
           // and check it for a common pattern of requesting specific components
@@ -69,7 +103,7 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
 
               if (shouldEmbed?.toLowerCase() === "yes") {
                 // Get the layout source file to inspect it
-                const layouts = await getLayouts(ctx, true);
+                const layouts = await getLayouts(true);
                 const layoutSrcPath = layouts.find((layout) =>
                   layout.includes(value)
                 );
