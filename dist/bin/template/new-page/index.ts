@@ -88,9 +88,11 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
           message: "Start typing to select the layout to utilize for the page:",
           default: await getLayouts(),
 
-          // When the user selects the layout to use, we will read the layout file
-          // and check it for a common pattern of requesting specific components
-          // to be used in the layout. We will utilize that to
+          // When the user selects the layout to use, we will read the layout
+          // file and check it for a common pattern of requesting specific
+          // components to be used in the layout. We will utilize that to
+          // automatically import the components for the generated file and
+          // automatically insert them into the JSX for faster development.
           onValue: async (value) => {
             // If a layout is selected, we shall analyze the layout file for any
             // components it will use in the layout so we can auto import those

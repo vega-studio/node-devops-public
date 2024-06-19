@@ -1,2 +1,2 @@
 // @bun
-import c from"path";var l=async()=>({defaultTargetPath:c.resolve("./"),fileMap:[["./assets","./ui/assets"],["./components","./ui/components"],["./stories","./ui/stories"],["./root","./ui"]]});export{l as default};
+import e from"path";var s=async()=>({defaultTargetPath:e.resolve("./"),fileMap:[["./assets","./ui/assets"],["./components","./ui/components"],["./stories","./ui/stories"],["./root","./ui"]]});export{s as default};
