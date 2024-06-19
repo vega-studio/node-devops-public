@@ -1,4 +1,4 @@
-export * from "./express-vite.js";
+export * from "./use-vite.js";
 export * from "./devops-vite-plugins.js";
 export * from "./vite-plugins/vite-devops-shader-compression-plugin.js";
 export * from "./vite-plugins/vite-devops-string-replace-plugin.js";

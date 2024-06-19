@@ -1,2 +1,2 @@
 // @bun
-var i=async()=>({});export{i as default};
+var k=async()=>({});export{k as default};

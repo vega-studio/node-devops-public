@@ -2,7 +2,7 @@ import express from "express";
 import https from "https";
 import path from "path";
 import { getEnv } from "../config/get-env.js";
-import { useVite } from "devops/shim/express-vite.js";
+import { useVite } from "devops/shim/use-vite.js";
 
 export async function configureVite(
   app: express.Express,
