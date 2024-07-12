@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "5.2.6",
+  "version": "5.2.7",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
@@ -27,7 +27,7 @@
     "package": "devops package"
   },
   "devDependencies": {
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.6"
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.7"
   },
   "keywords": [],
   "author": "",
