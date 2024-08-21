@@ -14,7 +14,7 @@ This project performs updates with some simple steps:
 
 - Update `devops` version in `package.json`
 - Run `bun run update` to update all files that are public for this project.
-- Commit changes with a semver commit
+- Commit changes with a semver commit: (Release x.x.x)
 
 Now to make the release official:
 
