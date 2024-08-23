@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "5.2.15",
+  "version": "5.2.15.1",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
@@ -10,6 +10,11 @@
     "type": "git",
     "url": "git@github.com:vega-studio/node-devops-public.git"
   },
+  "files": [
+    "dist/**/*",
+    "shim/**/*",
+    "shim/src/**/*"
+  ],
   "scripts": {
     "update": "./update.ts",
     "clean": "devops clean",
