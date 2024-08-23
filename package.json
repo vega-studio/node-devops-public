@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "5.2.15.1",
+  "version": "5.2.15-patch.2",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
