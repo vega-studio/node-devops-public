@@ -253,7 +253,7 @@ export async function syncTemplateToTarget({
       )
     ).template;
     // Ensure the directory for the target file exists
-    await fs.ensureDir(path.dirname(target));
+    await fs.ensureDirSync(path.dirname(target));
     // Copy the contents into the target file destination, prompt for an
     // override strategy if the file already exists.
     const didWrite = await promptDiffFile(

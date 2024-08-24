@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "5.2.15-patch.2",
+  "version": "5.2.20",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
@@ -32,7 +32,10 @@
     "package": "devops package"
   },
   "devDependencies": {
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.15"
+    "@inquirer/prompts": "5.3.8",
+    "@octokit/rest": "21.0.2",
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.20",
+    "octokit": "4.0.2"
   },
   "keywords": [],
   "author": "",
