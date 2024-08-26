@@ -33,9 +33,9 @@ async function run() {
     }
   }
 
-  try {
-    let scriptName, pathToScript;
+  let scriptName, pathToScript, program;
 
+  try {
     switch (process.platform) {
       case "aix":
       case "darwin":
@@ -49,7 +49,7 @@ async function run() {
           stdio: ["inherit", "inherit", "inherit"],
           env: process.env,
         });
-        return;
+        break;
 
       case "win32":
         scriptName = "main-entry.ps1";
@@ -68,13 +68,14 @@ async function run() {
             env: process.env,
           }
         );
-        return;
+        break;
 
       default:
         console.error(`Unknown platform: ${process.platform}`);
+        process.exit(1);
     }
   } catch (err) {
-    // NOOP
+    process.exit(Number(err.code || 1));
   }
 }
 

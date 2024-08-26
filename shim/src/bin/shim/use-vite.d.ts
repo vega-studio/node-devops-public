@@ -1,5 +1,5 @@
 /// <reference types="cookie-parser" />
-/// <reference types="node" resolution-mode="require"/>
+/// <reference types="node" />
 import https from "https";
 import { NextFunction, Request, Response } from "express";
 export type IViteResourceMiddleware = (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined | void;
