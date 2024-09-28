@@ -3,14 +3,7 @@ import type { IncomingHttpHeaders } from "http";
 
 declare global {
   export interface IJwt {
-    sub: string;
-    exp: number;
-    user: string;
-    "https://hasura.io/jwt/claims": {
-      "x-hasura-allowed-roles": string[];
-      "x-hasura-default-role": string;
-      "x-hasura-user-id": string;
-    };
+    // Fill in with your own custom JWT properties
   }
 
   namespace Express {

@@ -7,7 +7,7 @@
 import React from "react";
 import { Application } from "../../store";
 import { observer } from "mobx-react";
-import { useLifecycle } from "../../../../util/hooks/use-life-cycle";
+import { useLifecycle } from "../../../../util/hooks/use-life-cycle.js";
 import { useNavigate } from "react-router-dom";
 
 /**
@@ -69,13 +69,7 @@ export const SessionPage = observer(() => {
       return;
     }
 
-    // Perform all of the initial user application loading. We use loadOnce to
-    // prevent redundant reloads everytime this component experiences an update.
-    // We do it within the update as waiting for the session to be established
-    // is asynchronous and will receive reactive updates when it is ready.
-    Application.domain.dashboard.withdrawals.loadOnce({});
-    Application.domain.signup.currentSignup.loadOnce({});
-    Application.domain.signup.supportedStates.loadOnce({});
+    // TODO: Place any user session related loading here
   };
 
   /**
@@ -91,8 +85,7 @@ export const SessionPage = observer(() => {
       return;
     }
 
-    // Trigger a silent login to check the user session
-    Application.session.silentLogin();
+    // TODO: Perform heartbeat logic here to ensure user session
   };
 
   useLifecycle({

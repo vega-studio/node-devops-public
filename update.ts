@@ -116,6 +116,16 @@ async function copyFiles(DEVOPS_PATH: string) {
     fs.readFileSync(path.resolve(DEVOPS_PATH, "package.json"), "utf-8")
   );
 
+  const noBundle = new Set(packageJson.noBundle || []);
+
+  // Remove all dependencies EXCEPT the dependencies found in noBundle. All
+  // other dependencies will be bundled in our gimped version.
+  packageJson.dependencies = Object.fromEntries(
+    Object.entries(packageJson.dependencies).filter(([key]) =>
+      noBundle.has(key)
+    )
+  );
+
   packageJson.dependencies = {
     ...packageJson.dependencies,
     ...devopsPackageJson.dependencies,
