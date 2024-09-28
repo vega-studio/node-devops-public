@@ -35,8 +35,14 @@ import { caseTransformTokens } from "./case-transform-tokens.js";
  * Generates the context we pass to our templates.
  */
 export async function buildTemplateSyncContext(): Promise<TemplateSyncContext> {
-  const paths = await checkComponentStructure();
-  const components = await getAllComponents(paths);
+  const paths = await checkComponentStructure(false);
+  let components: string[] = [];
+  if (paths) components = await getAllComponents(paths);
+  else {
+    console.warn(
+      chalk.yellow("No components found in this project for the sync context.")
+    );
+  }
 
   return {
     components: new Set(components),

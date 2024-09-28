@@ -167,8 +167,6 @@ export async function syncTemplateToTarget({
     ...(templateSync.templateParams || {}),
   };
 
-  // Let's
-
   // Now that we have a valid template sync object, we can begin the sync.
   // We start by first seeing if there are any other templates to sync before
   // this one.
@@ -231,8 +229,13 @@ export async function syncTemplateToTarget({
     for (let k = 0, kMax = sourceFiles.length; k < kMax; ++k) {
       const filePath = sourceFiles[k];
       const relativePath = path.relative(sourcePath, filePath);
+      const targetFilePath = path.join(targetPath, relativePath);
+
+      // Ignore certain file target names
+      if (targetFilePath.includes(".DS_Store")) continue;
+
       // Push the paths to the final file map
-      finalFileMap.push([filePath, path.resolve(targetPath, relativePath)]);
+      finalFileMap.push([filePath, targetFilePath]);
     }
   }
 

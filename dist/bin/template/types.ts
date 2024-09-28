@@ -123,8 +123,11 @@ export type TemplateSync = {
 export type TemplateSyncContext = {
   /** List of all components in the project currently (pascal case) */
   components: Set<string>;
-  /** Relevant pathing information for component structure of the project. */
-  componentsPaths: ComponentsPaths;
+  /**
+   * Relevant pathing information for component structure of the project. If the
+   * project does not have components established this will be null.
+   */
+  componentsPaths: ComponentsPaths | null;
 
   /**
    * List of available common library functions passed to the template. Less

@@ -28,13 +28,17 @@ export interface I${{page: pascal}}Page extends VariantProps<typeof ${{page: pas
 
 /**
  * TODO: Write the page description for documentation here
+ *
+ * Use the forwardRef pattern to reference the top level DOM element to tie this
+ * into the page animation system
  */
 export const ${{page: pascal}}Page = observer(
-  React.forwardRef<HTMLDivElement, I${{page: pascal}}Page>((props: I${{page: pascal}}Page, _ref) => {
+  React.forwardRef<HTMLDivElement, I${{page: pascal}}Page>((props: I${{page: pascal}}Page, ref) => {
     const { className, containerProps, mode } = props;
 
     return (
       <${{layout: pascal}}
+        ref={ref}
         className={classnames(${{page: pascal}}PageCva.variants({ mode }), className)}
         {...containerProps}
       >

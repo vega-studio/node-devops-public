@@ -439,4 +439,17 @@ export class EnvBase {
   async appWillLoad() {
     // NOOP
   }
+
+  /**
+   * This executes once after the application is established and completed it's
+   * first render. This allows for some quick asynchronous operations that
+   * allows environment dependent configuration to be applied to the application
+   * in a fully running state.
+   *
+   * NOTE: Operations in this block should be EXTREMELY PERFORMANT AND FAST. DO
+   * NOT cram long running ANYTHING in here.
+   */
+  async appDidLoad() {
+    // NOOP
+  }
 }

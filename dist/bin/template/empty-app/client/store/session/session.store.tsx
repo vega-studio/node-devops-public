@@ -1,7 +1,6 @@
 import { action, computed, flow, makeObservable, observable } from "mobx";
 import { ENV } from "config/env/env.js";
 import { NavigateFunction } from "react-router-dom";
-import { FlowType } from "../types.js";
 import {
   QueryParams,
   toQueryParams,
@@ -9,42 +8,88 @@ import {
 import { Store } from "../store.js";
 import { urlJoin } from "../../../../util/url-join.js";
 import type { ApplicationStore } from "../application.store.js";
+import type { FlowType } from "../../../../util/types.js";
+
+export enum UserApplicationState {
+  /**
+   * Indicates the Application is loading a global property that is needed for
+   * the application to display in the correct state
+   */
+  LOADING = "loading",
+  NONE = "none",
+}
+
+export interface IUserSession {
+  // Define the user's session here
+}
 
 /**
- * TODO: This is a temp type that should be replaced by the user session that
- * comes from the server application when it's ready.
+ * This contains a User's current session information and controls. This
+ * monitors a client's logged in state as well as monitors things like window
+ * configuration/location that is pertinent to the operation of the application.
+ *
+ * This can theoretically bridge between a user's input devices and the
+ * application as well if those features are needed.
  */
-interface IUserSession {}
-
 export class SessionStore extends Store {
-  /**
-   * This defines the user's logged in status. When this value is "cookie" it
-   * means the jwt exists but is attached to the session cookie.
-   */
-  @observable userSession: IUserSession | null = null;
-  /** This defines the user's role they are currently using  */
-  @observable userRole = "";
-  /**
-   * This stores the waveform in a data format when the user is using the
-   * microphone. This contains the latest discovered data from the user when the
-   * listenToMicrophone() is called.
-   */
-  @observable microphoneAudioData: Uint8Array | null = null;
-  /**
-   * This stores the latest speech sent from the user. This uses the browsers
-   * determination when the user's speech text is a completed statement.
-   */
-  @observable speechText: { current: string; isFinished: boolean } | null =
-    null;
+  /** This is populated when the user is authenticated. */
+  @observable userSession: { isLoading: boolean; data?: IUserSession } = {
+    isLoading: false,
+  };
 
-  /** Helps us reject overlapping media requests */
-  @observable isRequestingMedia = false;
+  /**
+   * Stores which page the user is coming from when accessing the new page.
+   * NOTE: This is NOT observable for a variety of important reasons to work
+   * properly with the page transition system. You will need to use
+   * observableLocation for an observable reactive version of this.
+   */
+  location: {
+    previous?: {
+      pageKey: number;
+      path: string;
+      queryParams?: QueryParams;
+      fullPath: string;
+    };
+    current: {
+      pageKey: number;
+      path: string;
+      queryParams?: QueryParams;
+      fullPath: string;
+    };
+  } = {
+    previous: {
+      pageKey: 0,
+      path: ENV.routes.home,
+      fullPath: ENV.routes.home,
+    },
+    current: {
+      pageKey: 1,
+      path: window.location.pathname,
+      fullPath: window.location.pathname,
+    },
+  };
+
+  /**
+   * Returns an observable version of the location property.
+   */
+  @computed
+  get observableLocation() {
+    // We register the page key here to make this update with the location
+    // property changing.
+    this.pageKey;
+    return this.location;
+  }
+
+  /**
+   * Used to uniquely key a page. This is used in page transitions as older
+   * pages shuffle into other rendering systems for transitioning appropriately.
+   */
+  @observable private pageKey: number = 1;
 
   private _history: string[] = [];
   private _navigateFn?: NavigateFunction;
   @observable private _queryParams?: URLSearchParams = void 0;
   private _currentParamHref?: string = void 0;
-  private heartbeatTimer?: number = -1;
 
   constructor(app: ApplicationStore) {
     super(app);
@@ -54,7 +99,30 @@ export class SessionStore extends Store {
   /** Indicates the user has a valid logged in session still. */
   @computed
   get isLoggedIn() {
-    return Boolean(this.userSession);
+    return Boolean(this.userSession.data);
+  }
+
+  /**
+   * Computes high level user state based on what the user has accomplished with
+   * their account. This is not really a role but reflects where in the
+   * application the user should be.
+   */
+  @computed
+  get userApplicationState() {
+    // Set up the condition for global application state being loaded.
+    // if (false) {
+    //   return UserApplicationState.LOADING;
+    // }
+
+    // Check if the user is logged in
+    if (this.isLoggedIn) {
+      // Set up the application state to be the sign up flow possibly?
+      // return UserApplicationState.SIGNUP;
+    }
+
+    // If there is no user session, then the user is just viewing the public
+    // information flow.
+    return UserApplicationState.NONE;
   }
 
   /**
@@ -74,81 +142,98 @@ export class SessionStore extends Store {
 
   /** Produces the current query params as a simple object */
   @computed
-  get queryParamsObject() {
+  get queryParamsObject(): {
+    review?: "1";
+    auditError?: "1";
+    return?: "1";
+  } & Record<string, string> {
     return Object.fromEntries(this._queryParams?.entries() || []);
   }
 
+  /** Retrieve the current pathname on the window.location object */
   @computed
-  get currentLocation() {
+  get currentPathname() {
     return window.location.pathname;
   }
 
   /**
-   * Applies the current session to the store
+   * This is used to force check our Store's recording of the user's location
+   * information against the actual window's location. If a mismatch is
+   * detected, this updates the store with the latest location information.
+   *
+   * See PageManager for where this is typically called where we have navigation
+   * hooks in place.
    */
   @action
-  setSession(userSession?: IUserSession | null) {
-    // If we didn't want to clear the session, then we just retain the session
-    // set during login.
-    if (userSession === void 0) userSession = this.userSession;
-
-    // We are clearing the session because our heartbeat failed or we just want
-    // to be considered logged out.
-    if (this.userSession && userSession) {
-      // Clear any sensitive data
-      this.application.clear();
-
-      this.navigate(ENV.routes.login);
-    }
-
-    this.userSession = userSession;
-    window.clearInterval(this.heartbeatTimer);
-
-    // If a session is applied, we can trigger heartbeat checks
-    if (userSession) {
-      this.heartbeatTimer = window.setInterval(
-        () => {
-          // TODO: Add back when auth is ready
-          // this.application.domain.auth.heartbeat.load({});
+  ensureLocation() {
+    if (this.location.current.path !== this.currentPathname) {
+      this.location = {
+        previous: this.location.current,
+        current: {
+          pageKey: 1,
+          path: window.location.pathname,
+          fullPath: window.location.pathname,
         },
-        ENV.application.heartbeatInterval || 1000 * 60 * 5
-      );
+      };
     }
-
-    // No session: go to login
-    else {
-      ENV.application.preferences?.set("session", "");
-    }
-  }
-
-  @action
-  signOut() {
-    ENV.application.preferences?.set("session", "");
-    this.application.session.setSession(null);
   }
 
   /**
-   * If the user is not logged in this triggers a navigation to the login page
+   * Performs the steps necessary to cause the user's session to be invalidated.
    */
   @action
-  requireLogin() {
-    if (!this.isLoggedIn) {
-      this.navigate(ENV.routes.login);
-      return false;
-    }
+  logout() {
+    this.userSession.isLoading = true;
+    // Trigger the logout flow
+    // this.application.domain.auth.logout.load({});
+    this.userSession.isLoading = false;
+  }
 
-    return true;
+  /**
+   * Indicates the user is retrieving their session information.
+   */
+  @computed
+  get isLoggingIn() {
+    // Check application state that will indicate the user is in process of
+    // loggin in
+    return this.userSession.isLoading;
+  }
+
+  /**
+   * Runs the application login flow that establishes the user session.
+   */
+  @flow
+  *login() {
+    this.userSession = {
+      isLoading: true,
+    };
+
+    // Trigger login resources here and establish the user session
+
+    this.userSession.isLoading = false;
+  }
+
+  /**
+   * Runs the application create account flow that establishes an account for
+   * the user to utilize for the application.
+   */
+  @flow
+  *createAccount() {
+    this.userSession = {
+      isLoading: true,
+    };
+
+    // Trigger account creation flows here...
+
+    this.userSession.isLoading = false;
   }
 
   /**
    * Loads the user current session and validates it with the server.
    */
   @flow
-  *loadSession(): FlowType {
-    // Attempt a heartbeat. If the heartbeat fails, we are not logged in
-    // anymore.
-    // TODO: Add back when auth is ready
-    // yield flowResult(this.application.domain.auth.login.load({}));
+  *loadSession(_location: { pathname: string }): FlowType {
+    // Load the current session for the user if not established via the login procedure
   }
 
   /**
@@ -181,14 +266,42 @@ export class SessionStore extends Store {
   /**
    * Triggers app navigation
    */
+  @action
   navigate(path: string, queryParams?: QueryParams) {
-    // Convert injected params to query params
-    if (queryParams) {
-      path = urlJoin(path, toQueryParams(queryParams, void 0, true, void 0));
+    let fullPath = path;
+
+    // Ensure leading slash to better match window.location standard
+    if (!path.startsWith("/")) {
+      path = `/${path}`;
     }
 
+    // Convert injected params to query params
+    if (queryParams) {
+      fullPath = urlJoin(
+        path,
+        toQueryParams(queryParams, void 0, true, void 0)
+      );
+    }
+
+    // Ensure leading slash to better match window.location standard
+    if (!fullPath.startsWith("/")) {
+      fullPath = `/${fullPath}`;
+    }
+
+    // See if we are navigating to the exact same page. Skip these changes
+    if (this.location.current.fullPath === fullPath) return;
+
+    this.location.previous = this.location.current;
+
+    this.location.current = {
+      pageKey: ++this.pageKey,
+      path,
+      queryParams,
+      fullPath,
+    };
+
     // Update the location in the browser
-    this._navigateFn?.(path);
+    this._navigateFn?.(fullPath);
     // Immediately update the query params to the new setup
     this.updateQueryParams();
   }
