@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "5.2.27",
+  "version": "5.2.28",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@inquirer/prompts": "5.3.8",
     "@octokit/rest": "21.0.2",
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.27",
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#5.2.28",
     "octokit": "4.0.2"
   },
   "keywords": [],
@@ -59,7 +59,19 @@
     }
   },
   "dependencies": {
-    "vite": "4.3.9"
+    "vite": "4.3.9",
+    "@storybook/addon-a11y": "8.0.0",
+    "@storybook/addon-essentials": "8.0.0",
+    "@storybook/addon-interactions": "8.0.0",
+    "@storybook/addon-links": "8.0.0",
+    "@storybook/addon-mdx-gfm": "8.0.0",
+    "@storybook/cli": "8.0.0",
+    "@storybook/preset-scss": "1.0.3",
+    "@storybook/react": "8.0.0",
+    "@storybook/react-vite": "8.0.0",
+    "@storybook/test": "^8.0.0",
+    "@vitejs/plugin-react": "4.0.1",
+    "typescript": "5.5.x"
   },
   "peerDependencies": {
     "puppeteer": ">16",
