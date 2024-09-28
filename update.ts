@@ -60,7 +60,7 @@ async function commitAndTag(version: string) {
   execSync("git", ["push", "origin", "--tags"]);
 }
 
-async function copyFiles(DEVOPS_PATH: string) {
+async function ensureInstallationVersion() {
   // DO a complete sync of the dependencies to ensure we are absolutely up to
   // date
   fs.removeSync("node_modules/devops");
@@ -76,7 +76,9 @@ async function copyFiles(DEVOPS_PATH: string) {
   if (!(await promptConfirm(`Continue?`, false))) {
     process.exit(0);
   }
+}
 
+async function copyFiles(DEVOPS_PATH: string) {
   // Ensure the devops package exists
   if (!fs.existsSync(DEVOPS_PATH)) {
     throw new Error("Devops package not found");
@@ -116,12 +118,12 @@ async function copyFiles(DEVOPS_PATH: string) {
     fs.readFileSync(path.resolve(DEVOPS_PATH, "package.json"), "utf-8")
   );
 
-  const noBundle = new Set(packageJson.noBundle || []);
+  const noBundle = new Set(devopsPackageJson.noBundle || []);
 
   // Remove all dependencies EXCEPT the dependencies found in noBundle. All
   // other dependencies will be bundled in our gimped version.
-  packageJson.dependencies = Object.fromEntries(
-    Object.entries(packageJson.dependencies).filter(([key]) =>
+  devopsPackageJson.dependencies = Object.fromEntries(
+    Object.entries(devopsPackageJson.dependencies).filter(([key]) =>
       noBundle.has(key)
     )
   );
@@ -157,6 +159,8 @@ async function run() {
 
   // Update package json with the latest version from the private devops repo
   const version = await getLatestTagAndUpdate();
+  // Make sure our packages are up to date
+  await ensureInstallationVersion();
   // Do file copies and artifact tasks
   await copyFiles(DEVOPS_PATH);
   // Commit and tag the release
