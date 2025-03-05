@@ -29,7 +29,7 @@ export interface I${{component: pascal}} extends VariantProps<typeof ${{componen
  */
 export const ${{component: pascal}} = observer(
   React.forwardRef<HTMLDivElement, I${{component: pascal}}>((props: I${{component: pascal}}, _ref) => {
-    const { className, containerProps, mode, text } = props;
+    const { className, containerProps, mode } = props;
 
     return (
       <div

@@ -1,0 +1,73 @@
+import React from "react";
+import { classnames } from "../../../../util/classnames.js";
+import { cva, VariantProps } from "../../../../util/cva.js";
+import { observer } from "mobx-react";
+import "./${{component: kebab}}.scss";
+
+>{{
+  ${region: i18n}
+  ${staticTextImage} Use the image provided to generate all of the static text
+  provided in the image. The generated static text should be in the format:
+
+  type AllText = {
+    // The camel casing should be limited to the first 8 words of the text.
+    camelCaseVersionOfTheText: string;
+  };
+
+  const basei18n: AllText = {
+    // This should provide the literal text that is provided in the image.
+    camelCaseVersionOfTheText: "Camel case version of the text",
+  }
+}}
+
+/**
+ * Rendering variants of this component
+ */
+export const ${{component: pascal}}Cva = cva("${{component: pascal}}", {
+  variants: {
+    mode: {},
+  },
+  defaultVariants: { mode: undefined },
+});
+
+/**
+ * Props available to this component
+ */
+export interface I${{component: pascal}} extends VariantProps<typeof ${{component: pascal}}Cva.variants> {
+  /** Provides a custom class name to the container of this component */
+  className?: string;
+  /** Props to apply directly to the container div of this component */
+  containerProps?: React.HTMLProps<HTMLDivElement>;
+}
+
+/**
+ * >{{
+    ${region: componentDescription}
+    ${staticTextImage}
+
+    Using the image of the component and this name of the component:
+    ${component}
+
+    Generate a component description for documentation here. It
+    should be 1-4 sentences and should describe the what and why the component
+    would be used.
+  }}
+ >!{{* TODO: Write the component description for documentation here}}
+ */
+export const ${{component: pascal}} = observer(
+  React.forwardRef<HTMLDivElement, I${{component: pascal}}>((props: I${{component: pascal}}, _ref) => {
+    const { className, containerProps, mode, text } = props;
+
+    >{{
+      ${region: i18n}
+      const i18n: AllText = { ...basei18n, ...text };
+    }}
+
+    return (
+      <div
+        className={classnames(${{component: pascal}}Cva.variants({ mode }), className)}
+        {...containerProps}
+      ></div>
+    );
+  })
+);

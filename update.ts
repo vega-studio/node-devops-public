@@ -126,15 +126,17 @@ async function copyFiles(DEVOPS_PATH: string) {
     fs.readFileSync(path.resolve(DEVOPS_PATH, "package.json"), "utf-8")
   );
 
-  const noBundle = new Set(devopsPackageJson.noBundle || []);
+  // const noBundle = new Set(devopsPackageJson.noBundle || []);
 
   // Remove all dependencies EXCEPT the dependencies found in noBundle. All
   // other dependencies will be bundled in our gimped version.
-  devopsPackageJson.dependencies = Object.fromEntries(
-    Object.entries(devopsPackageJson.dependencies).filter(([key]) =>
-      noBundle.has(key)
-    )
-  );
+  // TODO: This doesn't really work in theory as there are other dependencies
+  // within configuration that need special casing.
+  // devopsPackageJson.dependencies = Object.fromEntries(
+  //   Object.entries(devopsPackageJson.dependencies).filter(
+  //     ([key]) => !noBundle.has(key)
+  //   )
+  // );
 
   packageJson.dependencies = {
     ...packageJson.dependencies,
