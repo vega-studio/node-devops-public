@@ -40,7 +40,6 @@ const CONFIG = {
     "@storybook/preset-scss",
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
     "@storybook/addon-a11y",
   ],
   framework: {
@@ -58,7 +57,6 @@ const CONFIG = {
     return config;
   },
   docs: {
-    autodocs: true,
     docsMode: false,
   },
   typescript: {

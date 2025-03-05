@@ -1,0 +1,25 @@
+import React from "react";
+import { StoryFn } from "@storybook/react";
+
+import { cvaOptionsToStorybook } from "../../../../util/cva.js";
+import { ${{component: pascal}}, ${{component: pascal}}Cva } from "../../../components/index.js";
+import { ${{component: pascal}}Props } from "../../data/${{category: kebab}}/${{component: kebab}}-props.js";
+
+export default {
+  title: "${{project: pascal}}/${{category: pascal}}/${{component: pascal}}",
+  component: ${{component: pascal}},
+  args: {},
+  argTypes: {
+    ...cvaOptionsToStorybook(${{component: pascal}}Cva),
+    children: { table: { disable: true } },
+    className: { table: { disable: true } },
+    containerProps: { table: { disable: true } },
+  },
+};
+
+const Template = (children?: any) => (args: any) => (
+  <${{component: pascal}} {...args}>{children}</${{component: pascal}}>
+);
+
+export const Basic: StoryFn = Template().bind({});
+Basic.args = ${{component: pascal}}Props();

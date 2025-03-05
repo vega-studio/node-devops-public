@@ -33,7 +33,7 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
   ) {
     const kebabName = changecase.kebabCase(selections.component);
     const filePath = path.resolve(
-      paths.componentsPath,
+      paths?.componentsPath || "",
       selections.category,
       kebabName,
       `${kebabName}.tsx`
@@ -94,10 +94,12 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
 
     paramPrompts: async () => {
       const categories = fs
-        .readdirSync(ctx.componentsPaths.componentsPath)
+        .readdirSync(ctx.componentsPaths?.componentsPath || "")
         .filter((c) =>
           fs
-            .statSync(path.resolve(ctx.componentsPaths.componentsPath, c))
+            .statSync(
+              path.resolve(ctx.componentsPaths?.componentsPath || "", c)
+            )
             .isDirectory()
         );
 
@@ -137,7 +139,10 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
               // Keep prompting for a unique name
               while (
                 fs.existsSync(
-                  path.resolve(ctx.componentsPaths.componentsPath, category)
+                  path.resolve(
+                    ctx.componentsPaths?.componentsPath || "",
+                    category
+                  )
                 )
               ) {
                 console.error(
@@ -162,7 +167,7 @@ export default async (ctx: TemplateSyncContext): Promise<TemplateSync> => {
       if (isComponentSelections(options)) {
         // Ensure the category has it's files generated correctly and barrels
         // updated
-        if (isNewCategory) {
+        if (isNewCategory && ctx.componentsPaths) {
           await generateCategory(ctx.componentsPaths, options);
         }
 

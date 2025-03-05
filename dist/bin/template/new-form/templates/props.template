@@ -1,0 +1,12 @@
+import { I${{component: pascal}} } from "../../../components/index.js";
+import { makeObservable, observable } from "mobx";
+
+class Store implements I${{component: pascal}} {
+  @observable className?: string = void 0;
+
+  constructor() {
+    makeObservable(this);
+  }
+}
+
+export const ${{component: pascal}}Props = () => new Store();

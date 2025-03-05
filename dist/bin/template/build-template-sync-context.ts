@@ -22,7 +22,7 @@ import { execScriptX } from "../exec/exec-scriptx.js";
 import { execSyncResult } from "../exec/exec-sync-result.js";
 import { execSync } from "../exec/exec-sync.js";
 import { getPackageManager } from "../exec/get-package-manager.js";
-import { template } from "../util/template.js";
+import { processTemplate } from "../util/template.js";
 import type { TemplateSyncContext } from "./types.js";
 import { promptConfirm } from "../prompt/prompt-confirm.js";
 import { promptDiffFile } from "../prompt/prompt-diff-file.js";
@@ -85,7 +85,7 @@ export async function buildTemplateSyncContext(): Promise<TemplateSyncContext> {
         changecase,
         description,
         openFile,
-        template,
+        template: processTemplate,
         caseTransformTokens,
       },
     },

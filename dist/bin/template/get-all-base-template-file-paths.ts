@@ -54,7 +54,7 @@ export async function getAllBaseTemplateFilePaths(
     // any tokens in the path are missed we error and quit.
     const sourceWithParams = (
       await caseTransformTokens(templatePathParams, source, source, true, false)
-    ).template;
+    ).result;
     // Generate the paths that will take place here
     const sourcePath = path.join(templateDirectoryPath, sourceWithParams);
     // Get all files based on these paths from the source (it may be a

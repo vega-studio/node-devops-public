@@ -1,4 +1,4 @@
-import { template } from "../util/template.js";
+import { processTemplate } from "../util/template.js";
 import * as changecase from "change-case";
 import fs from "fs-extra";
 import path from "path";
@@ -125,7 +125,7 @@ export async function caseTransformTokens(
   };
 
   // Run the template to discover all tokens in the template
-  const checkTokens = template({
+  const checkTokens = processTemplate({
     template: templateContents,
     options: {},
     doubleCurlyBrackets: true,
@@ -186,7 +186,7 @@ export async function caseTransformTokens(
   }
 
   // Generate all of the contents of our files by replacing the relevant terms
-  const results = template({
+  const results = processTemplate({
     template: templateContents,
     options: {},
     doubleCurlyBrackets: true,

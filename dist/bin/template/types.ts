@@ -24,7 +24,7 @@ import type { execScriptX } from "../exec/exec-scriptx.js";
 import type { execSyncResult } from "../exec/exec-sync-result.js";
 import type { execSync } from "../exec/exec-sync.js";
 import type { getPackageManager } from "../exec/get-package-manager.js";
-import type { template } from "../util/template.js";
+import type { processTemplate } from "../util/template.js";
 import type {
   caseTransformTokens,
   ParamPrompt,
@@ -171,7 +171,7 @@ export type TemplateSyncContext = {
       changecase: typeof changecase;
       description: typeof description;
       openFile: typeof openFile;
-      template: typeof template;
+      template: typeof processTemplate;
       caseTransformTokens: typeof caseTransformTokens;
     };
   };

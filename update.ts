@@ -81,6 +81,7 @@ async function ensureInstallationVersion() {
 async function copyFiles(DEVOPS_PATH: string) {
   // Ensure the devops package exists
   if (!fs.existsSync(DEVOPS_PATH)) {
+    console.error("Tried to find devops at:", DEVOPS_PATH);
     throw new Error("Devops package not found");
   }
 

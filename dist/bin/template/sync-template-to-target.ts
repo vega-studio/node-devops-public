@@ -16,6 +16,7 @@ import { openFile } from "../file-management/open-file.js";
 import { buildTemplateSyncContext } from "./build-template-sync-context.js";
 import { type TemplateSync } from "./types.js";
 import { getTemplateSyncObject } from "./get-template-sync-object.js";
+import { processAITemplate } from "../ai/process-ai-template.js";
 
 /**
  * Options for the syncTemplateToTarget helper method.
@@ -65,6 +66,12 @@ export interface ISyncTemplateToTarget {
    * When set, this will automatically open the written files in the editor.
    */
   openWrittenFiles?: boolean;
+  /**
+   * When set, the AI prompts included in templates will be processed and
+   * utilized. When not set, the AI prompts in the template will simply be
+   * stripped out.
+   */
+  useAIFeatures?: boolean;
 
   /**
    * This provides a means for adjusting a token replacement after all
@@ -98,6 +105,7 @@ export async function syncTemplateToTarget({
   suppressOverridePrompts = false,
   includeTemplateIdTag = false,
   openWrittenFiles = false,
+  useAIFeatures = false,
   transformToken,
 }: ISyncTemplateToTarget) {
   // Look at the directory indicated to be the template directory and see if
@@ -207,7 +215,7 @@ export async function syncTemplateToTarget({
         paramPrompts,
         templateSync.transformToken || transformToken
       )
-    ).template;
+    ).result;
     const targetWithParams = (
       await caseTransformTokens(
         templateParams,
@@ -218,7 +226,7 @@ export async function syncTemplateToTarget({
         paramPrompts,
         templateSync.transformToken || transformToken
       )
-    ).template;
+    ).result;
     // Generate the paths that will take place here
     const sourcePath = path.join(templateDirectoryPath, sourceWithParams);
     const targetPath = path.join(targetDirectory, targetWithParams);
@@ -254,7 +262,7 @@ export async function syncTemplateToTarget({
         paramPrompts,
         templateSync.transformToken || transformToken
       )
-    ).template;
+    ).result;
     // Ensure the directory for the target file exists
     await fs.ensureDirSync(path.dirname(target));
     // Copy the contents into the target file destination, prompt for an
@@ -302,7 +310,7 @@ export async function syncTemplateToTarget({
         paramPrompts,
         templateSync.transformToken || transformToken
       )
-    ).template;
+    ).result;
     const filePath = path.join(targetDirectory, fileWithParams);
 
     if (fs.existsSync(filePath)) {
@@ -320,6 +328,24 @@ export async function syncTemplateToTarget({
       Template sync complete for ${chalk.cyanBrightBold(templateId)}.
 
     `);
+  }
+
+  // If AI features are enabled, then we will process each file AGAIN, but this
+  // time with the AI template processor.
+  if (useAIFeatures) {
+  }
+
+  // If AI features are NOT enabled, then we simply perform processing of the
+  // template to strip out any AI prompts.
+  else {
+    writtenFiles.map(([targetPath]) => {
+      // Read the generate file from the template and strip out any AI
+      // prompting.
+      processAITemplate({
+        template: fs.readFileSync(targetPath, "utf8"),
+        stripAI: true,
+      });
+    });
   }
 
   if (openWrittenFiles) {

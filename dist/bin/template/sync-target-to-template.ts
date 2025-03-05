@@ -4,7 +4,7 @@ import path from "path";
 import { isDefined } from "../util/types.js";
 import readline from "readline";
 import { PromiseResolver } from "../util/promise-resolver.js";
-import { template } from "../util/template.js";
+import { processTemplate } from "../util/template.js";
 import { stringToComment } from "../util/string-to-comment.js";
 import { chalk } from "../util/chalk.js";
 
@@ -86,7 +86,7 @@ export async function syncTargetToTemplate(
 
     // Now we throw the line through the template helper to get the tokens in
     // the line, the token found should be a file path.
-    template({
+    processTemplate({
       template: line,
       options: {},
       doubleCurlyBrackets: true,
