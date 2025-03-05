@@ -5,6 +5,10 @@ import { execSync } from "./exec-sync";
 import { Octokit } from "@octokit/rest";
 import { promptConfirm } from "./prompt-confirm";
 
+async function wait(delay: number) {
+  return new Promise((r) => setTimeout(r, delay));
+}
+
 /**
  * This calls out to the git api to get the latest tag for the devops repo
  */
@@ -64,14 +68,17 @@ async function ensureInstallationVersion() {
   // DO a complete sync of the dependencies to ensure we are absolutely up to
   // date
   fs.removeSync("node_modules/devops");
+  await wait(100);
   execSync("bun", ["pm", "cache", "rm"]);
+  await wait(100);
   execSync("bun", ["i"]);
 
   // Let the file system flush
   await new Promise((r) => setTimeout(r, 1000));
 
   console.warn("Current devops set to:");
-  execSync("npm", ["ls", "devops"]);
+  const result = await fs.readJsonSync("node_modules/devops/package.json");
+  console.warn(result?.version);
 
   if (!(await promptConfirm(`Continue?`, false))) {
     process.exit(0);
@@ -148,6 +155,10 @@ async function copyFiles(DEVOPS_PATH: string) {
     path.resolve("package.json"),
     JSON.stringify(packageJson, null, 2)
   );
+
+  if (!(await promptConfirm(`Final Check. Continue?`, false))) {
+    process.exit(0);
+  }
 }
 
 /**
