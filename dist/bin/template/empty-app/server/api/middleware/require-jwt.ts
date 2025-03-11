@@ -11,15 +11,16 @@ export const requireJwt: IAPIMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   // Read the token from the request cookie
   const token = req.cookies["token"];
 
   // If no token is found, return an error
   if (!token) {
-    return res.status(403).send({
+    res.status(403).send({
       message: "No token provided! Please log in.",
     });
+    return;
   }
 
   // Verify the token
@@ -30,18 +31,20 @@ export const requireJwt: IAPIMiddleware = (
 
     // If the token is expired, return an error
     if (jwt.exp < Date.now() / 1000) {
-      return res.status(401).send({
+      res.status(401).send({
         message: "Expired Token. Please log in again.",
       });
+      return;
     }
   } catch (err) {
     jwt = void 0;
   }
 
   if (!jwt) {
-    return res.status(401).send({
+    res.status(401).send({
       message: "Unauthorized! Please log in.",
     });
+    return;
   }
 
   // If the token is valid, save the decoded jwt in the request

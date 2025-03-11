@@ -14,7 +14,7 @@ export type IAPIMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Response<any, Record<string, any>> | undefined | void;
+) => void | Promise<void>;
 
 /**
  * This is the context handed to any api being built. It will allow the system
@@ -313,7 +313,7 @@ export function api<
   Logging.api.info(`[Build -> ${method} ${path}]`);
 
   if (middleware.length === 0) {
-    middleware.push((_req, _res, next) => (next(), _res));
+    middleware.push((_req, _res, next) => (next(), void 0));
   }
 
   function getStatusColor(status: number) {

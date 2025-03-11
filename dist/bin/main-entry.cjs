@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable */
 
 const path = require("path");
 const { execFileSync } = require("child_process");
