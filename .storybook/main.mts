@@ -1,6 +1,6 @@
-import path from "path";
-import fs from "fs";
 import type { StorybookConfig } from "@storybook/react-vite";
+import fs from "fs";
+import path from "path";
 
 function isDefined<T>(value: T): value is NonNullable<T> {
   return value !== undefined && value !== null;
@@ -71,12 +71,9 @@ const CONFIG: StorybookConfig = {
     defaultName: "Documentation",
   },
   typescript: {
-    reactDocgen: "react-docgen-typescript",
-    reactDocgenTypescriptOptions: {
-      include: [
-        path.resolve(process.env.PROJECT_ROOT || "", "ui/components/**/**.tsx"),
-      ],
-    },
+    // Overrides the default Typescript configuration to allow multi-package components to be documented via Autodocs.
+    reactDocgen: "react-docgen",
+    check: false,
   },
 };
 

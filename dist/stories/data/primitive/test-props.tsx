@@ -1,5 +1,6 @@
-import { ITest } from "../../../components/index.js";
 import { makeObservable, observable } from "mobx";
+
+import { ITest } from "../../../components/index.js";
 
 class Store implements ITest {
   @observable className?: string = void 0;

@@ -1,5 +1,5 @@
-import https from "https";
 import { NextFunction, Request, Response } from "express";
+import https from "https";
 export type IViteResourceMiddleware = (req: Request, res: Response, next: NextFunction) => Response<any, Record<string, any>> | undefined | void;
 /**
  * Creates some proxy services for Vite to make HMR available. This ONLY happens

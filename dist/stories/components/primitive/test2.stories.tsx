@@ -1,12 +1,12 @@
-import React from "react";
 import { StoryFn } from "@storybook/react";
+import React from "react";
 
 import { cvaOptionsToStorybook } from "../../../../util/cva.js";
 import { Test2, Test2Cva } from "../../../components/index.js";
 import { Test2Props } from "../../data/primitive/test2-props.js";
 
 export default {
-  title: "TargetProjectPackage/Primitive/Test2",
+  title: "Devops/Primitive/Test2",
   component: Test2,
   args: {},
   argTypes: {

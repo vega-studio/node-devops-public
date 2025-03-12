@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/react";
-import DocumentationTemplate from "./documentation-template.mdx";
+
+// import DocumentationTemplate from "./documentation-template.mdx";
 
 const preview: Preview = {
   // ...rest of preview
@@ -13,7 +14,7 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
-    page: DocumentationTemplate,
+    // page: DocumentationTemplate,
   },
 };
 
