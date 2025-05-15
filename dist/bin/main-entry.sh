@@ -13,4 +13,4 @@ if [ -z "$NODE_OPTIONS" ]; then
   export NODE_OPTIONS="--max_old_space_size=8192"
 fi
 
-bun --bun run "${PATH_MAIN}" "$@"
+bun run "${PATH_MAIN}" "$@"

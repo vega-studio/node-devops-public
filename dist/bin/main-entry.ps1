@@ -21,4 +21,4 @@ $env:PATH_TSCONFIG = $pathTsconfig
 $env:PATH_MAIN = $pathMain
 
 # Run the main file using bun
-& bun --bun run $pathMain @args
+& bun run $pathMain @args
