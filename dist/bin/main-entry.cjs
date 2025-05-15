@@ -19,16 +19,22 @@ const fs = require("fs");
  * POSSIBLE ISSUES.
  */
 async function run() {
+  // Check our project name for "devops" if it is not we need to use the
+  // node_modules/devops path
+  let packageJson = fs.readFileSync(path.resolve("./package.json"));
+  packageJson = JSON.parse(packageJson);
+
   let pathToDist = path.resolve("./bin");
 
-  if (!fs.existsSync(path.resolve(pathToDist, "main-entry.sh"))) {
-    if (
-      fs.existsSync(
-        path.resolve("./node_modules/devops/dist/bin/main-entry.sh")
-      )
-    ) {
-      pathToDist = path.resolve("./node_modules/devops/dist/bin");
-    } else {
+  if (packageJson.name === "devops") {
+    if (!fs.existsSync(path.resolve(pathToDist, "main-entry.sh"))) {
+      console.error("Could not determine devops main-entry point.");
+      process.exit(1);
+    }
+  } else {
+    pathToDist = path.resolve("./node_modules/devops/dist/bin");
+
+    if (!fs.existsSync(path.resolve(pathToDist, "main-entry.sh"))) {
       console.error("Could not determine devops main-entry point.");
       process.exit(1);
     }
