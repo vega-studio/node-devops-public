@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "6.0.7",
+  "version": "6.0.8",
   "description": "",
   "main": "./dist/ui/index.js",
   "bin": {
@@ -34,7 +34,7 @@
   "devDependencies": {
     "@inquirer/prompts": "5.3.8",
     "@octokit/rest": "21.0.2",
-    "devops": "git+ssh://github.com/vega-studio/node-devops.git#6.0.7",
+    "devops": "git+ssh://github.com/vega-studio/node-devops.git#6.0.8",
     "octokit": "4.0.2"
   },
   "keywords": [],
